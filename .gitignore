@@ -1,0 +1,6 @@
+# ignore all hide files instead .gitignore
+.*
+!.gitignore
+
+# env
+env/
