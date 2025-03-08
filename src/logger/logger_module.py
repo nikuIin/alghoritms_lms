@@ -6,7 +6,6 @@ LOGS_COMPRESSION = "zip"
 LOGS_LEVEL = "DEBUG"
 LOGS_FORMAT = "{time} {level} {message}"
 
-
 LOGGER_SENSITIVE_WORDS = [
     "api",
     "key",
@@ -40,7 +39,20 @@ LOGGER_SENSITIVE_WORDS = [
 ]
 
 
+def logger_filter(message) -> bool:
+    message_lower = message["message"].lower()
+    return not any(
+        keyword in message_lower for keyword in LOGGER_SENSITIVE_WORDS
+    )
+
+
 class ModuleLoger:
+    rotation = LOGS_ROTATION
+    retention = LOGS_RETENTION
+    compress = LOGS_COMPRESSION
+    level = LOGS_LEVEL
+    format = LOGS_FORMAT
+
     def __init__(self, model_name: str):
         self.__model_name = model_name
         self.__logger = logger.bind(model=model_name)
@@ -50,31 +62,25 @@ class ModuleLoger:
     def setup_logger(self):
         self.__logger.add(
             f"logs/{self.__model_name}.log",
-            rotation=LOGS_ROTATION,
-            retention=LOGS_RETENTION,
-            compression=LOGS_COMPRESSION,
-            level=LOGS_LEVEL,
-            format=LOGS_FORMAT,
-            filter=self.__logger_filter,
+            rotation=ModuleLoger.rotation,
+            retention=ModuleLoger.retention,
+            compression=ModuleLoger.compress,
+            level=ModuleLoger.level,
+            format=ModuleLoger.format,
+            filter=logger_filter,
         )
         self.__logger.info(
-            f"Loger of {self.__model_name} is succesfully configurated!"
+            f"Loger of {self.__model_name} is successfully configurated!"
         )
 
-    def __logger_filter(self, message) -> bool:
-        message_lower = message["message"].lower()
-        return not any(
-            keyword in message_lower for keyword in LOGGER_SENSITIVE_WORDS
-        )
+    def debug(self, *args, **kwargs):
+        self.__logger.debug(*args, **kwargs)
 
-    def debug(self, message: str):
-        self.__logger.debug(message)
+    def info(self, *args):
+        self.__logger.info(*args)
 
-    def info(self, message: str):
-        self.__logger.info(message)
+    def warning(self, *args, **kwargs):
+        self.__logger.warning(*args, **kwargs)
 
-    def warning(self, message: str):
-        self.__logger.warning(message)
-
-    def error(self, message: str):
-        self.__logger.error(message)
+    def error(self, *args, **kwargs):
+        self.__logger.error(*args, **kwargs)
