@@ -100,8 +100,14 @@ async def get_user_by_phone(
     phone: str,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
-    """Get user by phone"""
-    user = await UserService.get_user_by_phone(session, phone)
+    """Get user by query parameters (email or phone)"""
+    user = None
+    if phone:
+        user = await UserService.get_user_by_phone(session, phone)
+    elif email and not phone:
+        user = await UserService.get_user_by_email(session, email)
+    else:
+        raise HTTPException(status_code=400, detail="No phone or email")
     if not user:
         raise HTTPException(
             status_code=404, detail=f"User with phone {phone} not found"
