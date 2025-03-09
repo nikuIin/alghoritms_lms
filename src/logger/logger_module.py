@@ -7,35 +7,35 @@ LOGS_LEVEL = "DEBUG"
 LOGS_FORMAT = "{time} {level} {message}"
 
 LOGGER_SENSITIVE_WORDS = [
-    "api",
-    "key",
-    "card",
-    "password",
-    "token",
-    "secret",
-    "ssn",  # Social Security Number
-    "credit",
-    "bank",
-    "address",
-    "email",
-    "phone",
-    "dob",  # Date of Birth
-    "pin",
-    "identity",
-    "medical",
-    "insurance",
-    "confidential",
-    "private",
-    "proposal",
-    "document",
-    "location",
-    "gps",
-    "activity",
-    "race",
-    "ethnicity",
-    "gender",
-    "religion",
-    "politics",
+    # "api",
+    # "key",
+    # "card",
+    # "password",
+    # "token",
+    # "secret",
+    # "ssn",  # Social Security Number
+    # "credit",
+    # "bank",
+    # "address",
+    # "email",
+    # "phone",
+    # "dob",  # Date of Birth
+    # "pin",
+    # "identity",
+    # "medical",
+    # "insurance",
+    # "confidential",
+    # "private",
+    # "proposal",
+    # "document",
+    # "location",
+    # "gps",
+    # "activity",
+    # "race",
+    # "ethnicity",
+    # "gender",
+    # "religion",
+    # "politics",
 ]
 
 
@@ -57,7 +57,6 @@ class ModuleLoger:
         self.__model_name = model_name
         self.__logger = logger.bind(model=model_name)
         self.setup_logger()
-        self.__logger.info(f"Loger of {model_name} model successfully created")
 
     def setup_logger(self):
         self.__logger.add(
@@ -69,15 +68,12 @@ class ModuleLoger:
             format=ModuleLoger.format,
             filter=logger_filter,
         )
-        self.__logger.info(
-            f"Loger of {self.__model_name} is successfully configurated!"
-        )
 
     def debug(self, *args, **kwargs):
         self.__logger.debug(*args, **kwargs)
 
-    def info(self, *args):
-        self.__logger.info(*args)
+    def info(self, *args, **kwargs):
+        self.__logger.info(*args, **kwargs)
 
     def warning(self, *args, **kwargs):
         self.__logger.warning(*args, **kwargs)
