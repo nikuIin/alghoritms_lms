@@ -88,6 +88,24 @@ class UserRepository:
             raise HTTPException(status_code=500, detail="Database error")
 
     @staticmethod
+    async def get_base_info_by_login(
+        session: AsyncSession, user_login: str
+    ) -> UserBase | None:
+        try:
+            async with session:
+                result = await session.execute(
+                    GET_BASE_USER_INFO_BY_LOGIN, {"user_login": user_login}
+                )
+                user = result.mappings()
+                if user:
+                    return user
+                return None
+
+        except SQLAlchemyError as e:
+            logger.error("SQLAlchemyError: %s" % e)
+            raise HTTPException(status_code=500, detail="Database error")
+
+    @staticmethod
     async def get_users(
         session: AsyncSession, role=None
     ) -> list[UserWithMD] | None:
