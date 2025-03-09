@@ -100,7 +100,20 @@ async def get_user_by_phone(
     phone: str,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
-    """Get user by query parameters (email or phone)"""
+    """
+    Get user by query parameters (email or phone)
+
+    If phone and email exists, search will be by phone firstly.
+    If no data by phone search,
+    then will be searched by email.
+
+    400 error if phone and email are not exists
+
+    :param phone:
+    :param email:
+    :param session:
+    :return:
+    """
     user = None
     if phone:
         user = await UserService.get_user_by_phone(session, phone)
