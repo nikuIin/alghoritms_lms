@@ -67,12 +67,13 @@ class UserService:
                 session, converted_phone
             )
         else:
-            raise HTTPException(
-                status_code=422,
-                detail="Invalid phone number format. "
-                "Must be a valid 10 or 11 digit number "
-                "(after removing non-numeric characters).",
-            )
+            return None
+            # raise HTTPException(
+            #     status_code=422,
+            #     detail="Invalid phone number format. "
+            #     "Must be a valid 10 or 11 digit number "
+            #     "(after removing non-numeric characters).",
+            # )
 
     @staticmethod
     async def get_user_by_email(
@@ -123,3 +124,10 @@ class UserService:
             session, user_login
         )
         return credentials
+
+    @staticmethod
+    async def get_base_user_info_by_login(
+        session: AsyncSession, user_login: str
+    ) -> UserBase | None:
+        user = await UserRepository.get_user_by_login(session, user_login)
+        return user

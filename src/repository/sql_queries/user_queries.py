@@ -35,6 +35,18 @@ GET_USER_CREDENTIALS = text(
     """
 )
 
+GET_BASE_USER_INFO_BY_LOGIN = text(
+    """
+    select
+        user_login,
+        email,
+        phone,
+        role_id
+    from "user"
+    where user_login=:user_login
+    """
+)
+
 SELECT_ALL_USERS_INFO = text(
     """
     select

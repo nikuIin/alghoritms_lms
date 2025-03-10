@@ -21,6 +21,7 @@ from repository.sql_queries.user_queries import (
     SELECT_TEACHERS,
     SELECT_ADMINS,
     SELECT_USERS,
+    GET_BASE_USER_INFO_BY_LOGIN,
     GET_USER_BY_LOGIN,
     GET_USER_BY_EMAIL,
     GET_USER_BY_PHONE,
@@ -121,6 +122,7 @@ class UserRepository:
         try:
             async with session:
                 result = await session.execute(select_query)
+                logger.info(type(result))
                 users = [UserWithMD(**row) for row in result.mappings()]
                 logger.debug("List of users: %s" % users)
 

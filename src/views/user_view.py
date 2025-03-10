@@ -1,16 +1,16 @@
 from fastapi import APIRouter, HTTPException, Body, Response, Depends, Request
 
 # schemas of user
-from schemas.user_schema import (
-    UserWithMD,
-    UserCreate,
-    UserLogin,
-)
+from schemas.user_schema import UserWithMD, UserCreate, UserLogin, UserBase
+
 
 from db.db_helper import db_helper
 from sqlalchemy.ext.asyncio import AsyncSession
 from services.user_services import UserService
 from core.config import ROLE_SETTING
+
+# types
+from pydantic import EmailStr
 
 # Auth library
 # ----------------------
@@ -19,7 +19,7 @@ from core.config import AUTH_CONFIG
 
 # for auth working
 from authx import AuthX
-from authx.exceptions import JWTDecodeError
+from authx.schema import decode_token
 
 # logger
 from logger.logger_module import ModuleLoger
@@ -29,13 +29,13 @@ from pathlib import Path
 
 # user login check
 from utils.user_utils.user_security import authentication
-from utils.user_utils.hash import hash_password
+from utils.user_utils.user_utils import only_teacher
 
 # __file__ -> path to file
 # method stem get name of file from path without type of file
 logger = ModuleLoger(Path(__file__).stem)
 
-router = APIRouter(prefix="/user", tags=["user"])
+router = APIRouter(tags=["user"])
 
 RESERVED_WORDS = ["users", "teachers", "admins"]
 
@@ -43,6 +43,7 @@ RESERVED_WORDS = ["users", "teachers", "admins"]
 security = AuthX(config=AUTH_CONFIG)
 
 
+# Routes:
 @router.get(
     "/all/",
     response_model=list[UserWithMD],
@@ -58,23 +59,19 @@ async def get_all_users(
     return users
 
 
-@router.get("/users/", response_model=list[UserWithMD])
-async def get_all_users(
+@router.get("/students/", response_model=list[UserWithMD])
+async def get_all_students(
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
-    """Get all list of users"""
-    try:
-        users = await UserService.get_users(
-            session,
-            ROLE_SETTING.user_role_id,
-        )
-        if not users:
-            raise HTTPException(status_code=404, detail="Users not found")
+    """Get all list of students"""
+    students = await UserService.get_users(
+        session,
+        ROLE_SETTING.user_role_id,
+    )
+    if not students:
+        raise HTTPException(status_code=404, detail="Students not found")
 
-        return users
-    except Exception as e:
-        logger.error(e)
-        raise HTTPException(status_code=500, detail="Internal server error")
+    return students
 
 
 @router.get("/teachers/", response_model=list[UserWithMD])
@@ -82,63 +79,60 @@ async def get_all_teachers(
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     """Get all list of teachers"""
-    try:
-        teachers = await UserService.get_users(
-            session, ROLE_SETTING.teacher_role_id
-        )
-        if not teachers:
-            raise HTTPException(status_code=404, detail="Teachers not found")
+    teachers = await UserService.get_users(
+        session, ROLE_SETTING.teacher_role_id
+    )
+    if not teachers:
+        raise HTTPException(status_code=404, detail="Teachers not found")
 
-        return teachers
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Internal server error")
+    return teachers
 
 
-@router.get("/by-phone/", response_model=UserWithMD)
-async def get_user_by_phone(
-    phone: str,
+@router.get(
+    "/user/",
+    response_model=UserWithMD,
+    responses={
+        404: {"description": "User not found"},
+    },
+)
+async def get_user(
+    phone: str | None = None,
+    email: str | None = None,
     session: AsyncSession = Depends(db_helper.session_dependency),
-):
+) -> UserWithMD | None:
     """
     Get user by query parameters (email or phone)
 
     If phone and email exists, search will be by phone firstly.
-    If no data by phone search,
-    then will be searched by email.
+    If no data by phone search, then will be searched by email.
 
-    400 error if phone and email are not exists
+    400 error if phone and email are not exists.
 
-    :param phone:
-    :param email:
-    :param session:
-    :return:
+    :param phone: User phone number
+    :param email: User email
+    :param session: DB session
+    :return: 404 with no data or user model
     """
     user = None
-    if phone:
+    if phone and email:
         user = await UserService.get_user_by_phone(session, phone)
-    elif email and not phone:
+        logger.debug(f"Find user by phone {phone}: {user}")
+        if not user:
+            user = await UserService.get_user_by_email(session, email)
+            logger.debug(f"Find user by email {email}: {user}")
+    elif email:
         user = await UserService.get_user_by_email(session, email)
+        logger.debug(f"Find user by email {email}: {user}")
+    elif phone:
+        user = await UserService.get_user_by_phone(session, phone)
+        logger.debug(f"Find user by phone {phone}: {user}")
     else:
         raise HTTPException(status_code=400, detail="No phone or email")
-    if not user:
-        raise HTTPException(
-            status_code=404, detail=f"User with phone {phone} not found"
-        )
-    return user
-
-
-@router.get("/by-email/", response_model=UserWithMD)
-async def get_user_by_email(
-    email: str,
-    session: AsyncSession = Depends(db_helper.session_dependency),
-):
-    """Get user by email"""
-    user = await UserService.get_user_by_email(session, email)
-    if not user:
-        raise HTTPException(
-            status_code=404, detail=f"User with email {email} not found"
-        )
+    # if not user:
+    #     raise HTTPException(
+    #         status_code=404,
+    #         detail=f"User with data {phone, email} not found",
+    #     )
     return user
 
 
@@ -170,16 +164,17 @@ async def user_auth(
         Depends(security.access_token_required),
     ],
 )
-def protected(request: Request):
-    """
-    Some protected
-    :param request:
-    :return:
-    """
-    return request.cookies["AccessToken"]
+def whoami(request: Request):
+    only_teacher(
+        request
+    )  # TODO: figure out how create decorator for fast-api route
+    token = request.cookies[AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME]
+    token = decode_token(token=token, key=AUTH_CONFIG.JWT_SECRET_KEY)
+    role = int(token["sub"][-2:-1])
+    return role
 
 
-@router.get("/get/{login}", response_model=UserWithMD, status_code=200)
+@router.get("/user/{login}/", response_model=UserWithMD, status_code=200)
 async def get_user_by_login(
     login: str,
     session: AsyncSession = Depends(db_helper.session_dependency),

@@ -3,7 +3,7 @@ from loguru import logger
 LOGS_ROTATION = "0:00"
 LOGS_RETENTION = "2 month"
 LOGS_COMPRESSION = "zip"
-LOGS_LEVEL = "DEBUG"
+LOGS_LEVEL = "ERROR"
 LOGS_FORMAT = "{time} {level} {message}"
 
 LOGGER_SENSITIVE_WORDS = [

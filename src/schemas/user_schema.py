@@ -1,6 +1,4 @@
 from pydantic import EmailStr, BaseModel, ConfigDict
-from typing import Annotated
-from annotated_types import MinLen, MaxLen
 from core.config import ROLE_SETTING
 
 # datetime library
@@ -8,14 +6,14 @@ from datetime import datetime
 
 
 class UserBase(BaseModel):
-    user_login: Annotated[str, MinLen(4), MaxLen(20)]
+    user_login: str
     email: EmailStr
-    phone: Annotated[str, MinLen(10), MaxLen(18)] | None = None
+    phone: str | None
     role_id: int = ROLE_SETTING.user_role_id
 
 
 class UserMDBase(BaseModel):
-    user_login: Annotated[str, MinLen(3), MaxLen(20)]
+    user_login: str
     first_name: str
     second_name: str
     patronymic: str | None = None
@@ -28,10 +26,10 @@ class UserWithMD(UserBase, UserMDBase):
 
 
 class UserCreate(UserWithMD):
-    password: Annotated[str, MinLen(8), MaxLen(60)]
+    password: str
 
 
 class UserLogin(BaseModel):
-    user_login: Annotated[str, MinLen(4), MaxLen(20)]
-    password: Annotated[str, MinLen(8), MaxLen(60)]
+    user_login: str
+    password: str
     role_id: int = ROLE_SETTING.user_role_id

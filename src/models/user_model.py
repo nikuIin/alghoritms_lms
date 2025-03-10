@@ -6,6 +6,7 @@ from time import time
 
 USER_ROLE_ID = 2
 
+
 class User(Base):
     __tablename__ = "user"
 
@@ -21,13 +22,16 @@ class User(Base):
 class MdUser(Base):
     __tablename__ = "md_user"
 
-    user_login = Column(String(255), ForeignKey("user.user_login"), primary_key=True)
+    user_login = Column(
+        String(255), ForeignKey("user.user_login"), primary_key=True
+    )
     first_name = Column(String(255), nullable=False)
     second_name = Column(String(255), nullable=False)
     patronymic = Column(String(255))
     additional_info = Column(String)
     registration_date = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now()
+    )
 
     user = relationship("User", back_populates="md_user")
-
