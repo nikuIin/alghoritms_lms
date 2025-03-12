@@ -23,6 +23,11 @@ class RoleSettings(BaseModel):
     user_role_id: int = 1
 
 
+class StatusOfElementsSettings(BaseModel):
+    published: int = 1
+    draft: int = published  # for first program version
+
+
 class CredentialsSettings(BaseModel):
     salt: str = getenv("SALT")
 
@@ -34,6 +39,8 @@ AUTH_CONFIG = AuthXConfig()
 AUTH_CONFIG.JWT_SECRET_KEY = getenv("AUTH_SECRET_KEY")
 AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME = "AccessToken"
 AUTH_CONFIG.JWT_TOKEN_LOCATION = ["cookies"]
-AUTH_CONFIG.JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=30)
+AUTH_CONFIG.JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
 
 CREDENTIALS_CONFIG = CredentialsSettings()
+
+STATUS_OF_ELEMENTS_SETTINGS = StatusOfElementsSettings()
