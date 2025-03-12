@@ -8,3 +8,6 @@ env/
 # logs
 log*/
 *.log
+
+# cache
+__pycache__/
