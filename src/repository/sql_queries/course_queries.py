@@ -1,5 +1,4 @@
 from sqlalchemy import text
-from core.config import STATUS_OF_ELEMENTS_SETTINGS
 
 GET_COURSES = text(
     """
@@ -10,6 +9,14 @@ GET_COURSES = text(
         status_id,
         description
     from course
+    """
+)
+
+IS_COURSE_EXISTS = text(
+    """
+    select 1
+    from course
+    where course_id = :course_id
     """
 )
 

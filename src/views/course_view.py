@@ -1,4 +1,3 @@
-from exceptions.UserException import UserNotFound
 from fastapi import APIRouter, HTTPException, Body, Response, Depends
 from typing import List, Any, Coroutine
 
@@ -14,6 +13,9 @@ from sqlalchemy.exc import DataError as SQLDataError, SQLAlchemyError
 # !!! from services.course import UserService
 from core.config import ROLE_SETTING
 
+# exceptions
+from exceptions.UserException import UserNotFound
+from exceptions.ValidationException import UUIDValidationException
 
 # Auth library
 # ----------------------
@@ -57,6 +59,15 @@ async def get_course(
             session=session, course_id=course_uuid
         )
         return course
+
+    except UUIDValidationException:
+        raise HTTPException(
+            status_code=400,
+            detail="UUID of course validation error. "
+            "UUID should be 32..36 length and UUID must contains "
+            "only hex symbols.",
+        )
+
     except HTTPException as e:
         raise e  # Re-raise the HTTPException
     except SQLAlchemyError as e:
@@ -70,7 +81,7 @@ async def get_course(
 async def get_courses_by_owner(
     owner_login: str,
     session: AsyncSession = Depends(db_helper.session_dependency),
-) -> Response | list[CourseGet]:
+) -> list[CourseGet]:
     """
     Retrieves all courses owned by a specific user.
     """
@@ -83,7 +94,8 @@ async def get_courses_by_owner(
         raise HTTPException(status_code=404, detail="Not Found")
     except SQLAlchemyError as e:
         logger.error(
-            f"Error occurred while getting courses by owner: {owner_login} - {e}"
+            f"Error occurred while getting courses by owner: "
+            f"{owner_login} - {e}"
         )
         raise HTTPException(status_code=500, detail="Database Server Error")
 
@@ -92,7 +104,7 @@ async def get_courses_by_owner(
 async def get_courses(
     response: Response,
     session: AsyncSession = Depends(db_helper.session_dependency),
-) -> List[CourseGet] | None:
+) -> List[CourseGet]:
     try:
         courses = await CourseServices.get_all_courses(session=session)
     except SQLAlchemyError as e:
@@ -102,14 +114,13 @@ async def get_courses(
     if courses:
         return courses
 
-    response.status = 404
-    return None
+    raise HTTPException(status_code=404, detail="Not Found")
 
 
 @router.post("/courses/", status_code=201)
 async def create_course(
     response: Response,
-    course: CourseCreate = Body(...),
+    course: CourseCreate = Body(),
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     """
@@ -121,6 +132,13 @@ async def create_course(
         return {"detail": "Course created successfully"}
     except HTTPException as e:
         raise e  # Re-raise the HTTPException
+
+    except UUIDValidationException:
+        raise HTTPException(
+            status_code=400,
+            detail="UUID validation error. UUID should be 32..36 length",
+        )
+
     except UserNotFound:
         response.status_code = 400
         return {"detail": "User not found"}
@@ -133,8 +151,8 @@ async def create_course(
 
 @router.post("/courses/register_user/", status_code=204)
 async def add_user_to_course(
-    course_uuid: str = Body(...),
-    user_login: str = Body(...),
+    course_uuid: str = Body(),
+    user_login: str = Body(),
     session: AsyncSession = Depends(db_helper.session_dependency),
 ) -> Response:
     """
@@ -145,8 +163,13 @@ async def add_user_to_course(
             course_id=course_uuid, user_login=user_login, session=session
         )
         return Response(status_code=204)
-    except HTTPException as e:
-        raise e
+    except UUIDValidationException:
+        raise HTTPException(
+            status_code=400,
+            detail="UUID of course validation error. "
+            "UUID should be 32..36 length and UUID must contains"
+            " only hex symbols.",
+        )
     except SQLAlchemyError as e:
         logger.error(
             f"Error occurred while adding user {user_login} to course {course_uuid} - {e}"

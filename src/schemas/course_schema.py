@@ -6,12 +6,13 @@ from datetime import datetime, timezone
 # configuration objects
 from core.config import STATUS_OF_ELEMENTS_SETTINGS
 
-# Schemas of courses. In courses will be modules.
+# Schemas of courses. In courses will be assignments
+# (in second version of program will be modules/lesson/assignments).
 
 
 class CourseBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    course_id: Any = "md"
+    course_id: Any
     name: str
 
 

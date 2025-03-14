@@ -1,13 +1,6 @@
-# http code statuses
-from fastapi import HTTPException
-
 # module for work with db in asyncio mod
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.course_schema import CourseBase, CourseGet, CourseCreate
-from sqlalchemy.exc import SQLAlchemyError
-
-# datetime worker
-from datetime import datetime
 
 # Logger module
 from logger.logger_module import ModuleLoger
@@ -28,6 +21,18 @@ logger = ModuleLoger(Path(__file__).stem)
 
 
 class CourseRepository:
+
+    @staticmethod
+    async def is_course_exists(session: AsyncSession, course_id: str) -> bool:
+        async with session:
+            result = await session.execute(
+                course_queries.IS_COURSE_EXISTS, {"course_id": course_id}
+            )
+
+        if course := result.fetchone():
+            logger.info(course)
+            return True
+        return False
 
     @staticmethod
     async def get_all_course(session: AsyncSession) -> list[CourseGet]:

@@ -19,6 +19,7 @@ from utils.user_utils.hash import hash_password
 # initialize logger for user services
 # __file__ -> path to file
 # method stem get name of file from path without type of file
+
 logger = ModuleLoger(Path(__file__).stem)
 
 

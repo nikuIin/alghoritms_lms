@@ -33,6 +33,6 @@ def only_teacher(request: Request):
     token = request.cookies[AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME]
     token = decode_token(token=token, key=AUTH_CONFIG.JWT_SECRET_KEY)
     role = int(token["sub"][-2:-1])
-
+    logger.info("User %s ask access to teacher method." % token["sub"])
     if role != 2:
         raise HTTPException(status_code=404, detail="Forbidden.")

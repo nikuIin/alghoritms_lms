@@ -35,6 +35,7 @@ from utils.user_utils.user_utils import only_teacher
 # method stem get name of file from path without type of file
 logger = ModuleLoger(Path(__file__).stem)
 
+
 router = APIRouter(tags=["user"])
 
 RESERVED_WORDS = ["users", "teachers", "admins"]

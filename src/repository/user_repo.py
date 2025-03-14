@@ -124,7 +124,7 @@ class UserRepository:
                 result = await session.execute(select_query)
                 logger.info(type(result))
                 users = [UserWithMD(**row) for row in result.mappings()]
-                logger.debug("List of users: %s" % users)
+                logger.debug("Get list of users: %s" % users)
 
                 if users:
                     return users

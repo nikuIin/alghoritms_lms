@@ -1,41 +1,14 @@
 from loguru import logger
+from pathlib import Path
 
 LOGS_ROTATION = "0:00"
 LOGS_RETENTION = "2 month"
 LOGS_COMPRESSION = "zip"
-LOGS_LEVEL = "ERROR"
+LOGS_LEVEL = "DEBUG"
 LOGS_FORMAT = "{time} {level} {message}"
 
 LOGGER_SENSITIVE_WORDS = [
-    # "api",
-    # "key",
-    # "card",
-    # "password",
-    # "token",
-    # "secret",
-    # "ssn",  # Social Security Number
-    # "credit",
-    # "bank",
-    # "address",
-    # "email",
-    # "phone",
-    # "dob",  # Date of Birth
-    # "pin",
-    # "identity",
-    # "medical",
-    # "insurance",
-    # "confidential",
-    # "private",
-    # "proposal",
-    # "document",
-    # "location",
-    # "gps",
-    # "activity",
-    # "race",
-    # "ethnicity",
-    # "gender",
-    # "religion",
-    # "politics",
+    # ... (список чувствительных слов)
 ]
 
 
@@ -53,20 +26,30 @@ class ModuleLoger:
     level = LOGS_LEVEL
     format = LOGS_FORMAT
 
-    def __init__(self, model_name: str):
+    def __init__(self, model_name):
+        # Используйте уникальное имя файла журнала для каждого объекта ModuleLoger
         self.__model_name = model_name
-        self.__logger = logger.bind(model=model_name)
-        self.setup_logger()
+        unique_filename = f"logs/{model_name}.log"
+        self.__logger = logger.bind(object_type=model_name)
+        self.setup_logger(unique_filename)
 
-    def setup_logger(self):
+    def setup_logger(self, filename):
+        """Set up the logger with a sink that filters by module name and sensitive words."""
+
+        def combined_filter(record):
+            # Only allow logs where the 'model' matches this module and no sensitive words
+            return (
+                record["extra"]["object_type"] == self.__model_name
+            ) and logger_filter(record)
+
         self.__logger.add(
-            f"logs/{self.__model_name}.log",
-            rotation=ModuleLoger.rotation,
-            retention=ModuleLoger.retention,
-            compression=ModuleLoger.compress,
-            level=ModuleLoger.level,
-            format=ModuleLoger.format,
-            filter=logger_filter,
+            filename,
+            rotation=self.rotation,
+            retention=self.retention,
+            compression=self.compress,
+            level=self.level,
+            format=self.format,
+            filter=combined_filter,
         )
 
     def debug(self, *args, **kwargs):

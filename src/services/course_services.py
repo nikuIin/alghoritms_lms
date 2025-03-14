@@ -1,5 +1,6 @@
 # package for work with data of users in db
 from exceptions.UserException import UserNotFound
+from exceptions.ValidationException import UUIDValidationException
 from repository.course_repo import CourseRepository
 from repository.user_repo import UserRepository
 
@@ -7,6 +8,8 @@ from schemas.course_schema import CourseGet, CourseCreate
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from typing import List
+
+from utils.uuid_checker import validate_uuid
 
 # lib for working with paths
 from pathlib import Path
@@ -19,6 +22,7 @@ from logger.logger_module import ModuleLoger
 # initialize logger for user repo
 # __file__ -> path to file
 # method stem get name of file from path without type of file
+
 logger = ModuleLoger(Path(__file__).stem)
 
 
@@ -39,17 +43,29 @@ class CourseServices:
         Prepends "md" to the course ID.
         Raises HTTPException 404 if the course is not found.
         """
+        if not validate_uuid(course_id):
+            raise UUIDValidationException()
         course = await CourseRepository.get_course(
             session=session, course_id=course_id
         )
         if not course:
+            # return None
             raise HTTPException(
                 status_code=404,
                 detail=f"Course with id: {course_id} not found",
             )
 
-        course.course_id = "md" + str(course.course_id)
+        course.course_id = "crs" + str(course.course_id)
         return course
+
+    @staticmethod
+    async def is_course_exists(
+        course_uuid: str,
+        session: AsyncSession,
+    ):
+        return await CourseRepository.is_course_exists(
+            course_id=course_uuid, session=session
+        )
 
     @staticmethod
     async def get_courses_by_owner(

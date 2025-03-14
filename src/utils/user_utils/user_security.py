@@ -13,8 +13,6 @@ from pathlib import Path
 from core.config import CREDENTIALS_CONFIG
 from utils.user_utils.hash import hash_password
 
-logger = ModuleLoger(Path(__file__).stem)
-
 
 async def authentication(
     session: AsyncSession, login_in: str, password_in: str
@@ -23,8 +21,6 @@ async def authentication(
         session, login_in
     )
     password_in = hash_password(password_in)
-    logger.info(f"user_credentials: {user_credentials}")
-    logger.info(f"user_in_credentials: {login_in, password_in}")
     if not user_credentials or (user_credentials.user_login != login_in):
         return False
 
@@ -34,7 +30,5 @@ async def authentication(
         return False
 
 
-async def registration(
-    session: AsyncSession, user_in: UserCreate
-) -> UserWithMD:
+async def registration(session: AsyncSession, user_in: UserCreate):
     await UserService.validate_user_data(session, user_in)
