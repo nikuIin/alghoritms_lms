@@ -1,4 +1,6 @@
 # bd worker
+from csv import excel
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from typing import Callable
@@ -11,7 +13,7 @@ from core.config import AUTH_CONFIG
 from authx.schema import decode_token
 
 # authentication config
-from core.config import AUTH_CONFIG
+from core.config import AUTH_CONFIG, ROLE_SETTING
 
 from fastapi import HTTPException, Request
 
@@ -29,10 +31,14 @@ from schemas.user_schema import UserBase
 logger = ModuleLoger(Path(__file__).stem)
 
 
-def only_teacher(request: Request):
-    token = request.cookies[AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME]
-    token = decode_token(token=token, key=AUTH_CONFIG.JWT_SECRET_KEY)
-    role = int(token["sub"][-2:-1])
-    logger.info("User %s ask access to teacher method." % token["sub"])
-    if role != 2:
-        raise HTTPException(status_code=404, detail="Forbidden.")
+async def only_teacher(request: Request):
+    try:
+        token = request.cookies[AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME]
+        token = decode_token(token=token, key=AUTH_CONFIG.JWT_SECRET_KEY)
+        role = int(token["sub"][-2:-1])
+        if role != ROLE_SETTING.teacher_role_id:
+            logger.info("User %s ask access to teacher method." % token["sub"])
+            raise HTTPException(status_code=403, detail="Forbidden.")
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(status_code=403, detail="Forbidden.")

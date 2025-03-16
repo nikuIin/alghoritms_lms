@@ -24,7 +24,6 @@ logger = ModuleLoger(Path(__file__).stem)
 
 
 class UserService:
-
     @staticmethod
     async def get_users(
         session: AsyncSession,
@@ -64,9 +63,7 @@ class UserService:
         converted_phone = UserService.phone_convertor(phone)
 
         if converted_phone:
-            return await UserRepository.get_user_by_phone(
-                session, converted_phone
-            )
+            return await UserRepository.get_user_by_phone(session, converted_phone)
         else:
             return None
             # raise HTTPException(
@@ -86,9 +83,7 @@ class UserService:
     @staticmethod
     async def validate_user_data(session: AsyncSession, user_in: UserWithMD):
         logger.info("%s user validate" % (user_in,))
-        if await UserRepository.is_user_exists(
-            session, login=user_in.user_login
-        ):
+        if await UserRepository.is_user_exists(session, login=user_in.user_login):
             raise HTTPException(
                 status_code=409,
                 detail=f"User with login {user_in.user_login} already exists",
@@ -98,18 +93,14 @@ class UserService:
                 status_code=409,
                 detail=f"User with email {user_in.email} already exists",
             )
-        if user_in.phone and await UserRepository.is_user_exists(
-            session, phone=user_in.phone
-        ):
+        if user_in.phone and await UserRepository.is_user_exists(session, phone=user_in.phone):
             raise HTTPException(
                 status_code=409,
                 detail=f"User with phone {user_in.phone} already exists",
             )
 
     @staticmethod
-    async def create_user(
-        session: AsyncSession, user_in: UserCreate
-    ) -> UserWithMD | None:
+    async def create_user(session: AsyncSession, user_in: UserCreate) -> UserWithMD | None:
         # convert user phone in the right format (only digits)
         user_in.phone = UserService.phone_convertor(user_in.phone)
         user_in.password = hash_password(user_in.password)
@@ -118,12 +109,8 @@ class UserService:
         return await UserRepository.create_user(session, user_in)
 
     @staticmethod
-    async def get_user_credentials(
-        session: AsyncSession, user_login: str
-    ) -> UserCreate | None:
-        credentials = await UserRepository.get_user_credentials(
-            session, user_login
-        )
+    async def get_user_credentials(session: AsyncSession, user_login: str) -> UserCreate | None:
+        credentials = await UserRepository.get_user_credentials(session, user_login)
         return credentials
 
     @staticmethod

@@ -50,9 +50,11 @@ security = AuthX(config=AUTH_CONFIG)
     response_model=list[UserWithMD],
 )
 async def get_all_users(
+    request: Request,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     """Get all list of users"""
+    await only_teacher(request)
     users = await UserService.get_users(session)
     if not users:
         raise HTTPException(status_code=404, detail="Users not found")
@@ -60,10 +62,15 @@ async def get_all_users(
     return users
 
 
-@router.get("/students/", response_model=list[UserWithMD])
+@router.get(
+    "/students/",
+    response_model=list[UserWithMD],
+)
 async def get_all_students(
+    request: Request,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
+    await only_teacher(request)
     """Get all list of students"""
     students = await UserService.get_users(
         session,
@@ -165,8 +172,8 @@ async def user_auth(
         Depends(security.access_token_required),
     ],
 )
-def whoami(request: Request):
-    only_teacher(
+async def whoami(request: Request):
+    await only_teacher(
         request
     )  # TODO: figure out how create decorator for fast-api route
     token = request.cookies[AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME]
@@ -205,9 +212,11 @@ async def get_user_by_login(
     response_model=UserWithMD,
 )
 async def create_user(
+    request: Request,
     user_in: UserCreate = Body(),
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
+    await only_teacher(request)
     """
     Create new user
     :param user_in: json data of new user

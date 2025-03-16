@@ -7,9 +7,7 @@ LOGS_COMPRESSION = "zip"
 LOGS_LEVEL = "DEBUG"
 LOGS_FORMAT = "{time} {level} {message}"
 
-LOGGER_SENSITIVE_WORDS = [
-    # ... (список чувствительных слов)
-]
+LOGGER_SENSITIVE_WORDS = ["API"]
 
 
 def logger_filter(message) -> bool:

@@ -1,7 +1,7 @@
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
-from datetime import datetime, timezone
 
 # configuration objects
 from core.config import STATUS_OF_ELEMENTS_SETTINGS
