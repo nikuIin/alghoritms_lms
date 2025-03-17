@@ -43,6 +43,17 @@ class ValidationSettings(BaseModel):
     max_height: int = 25
 
 
+class ActionsSettings(BaseModel):
+    step_right_id: int = 1
+    step_left_id: int = 2
+    step_up_id: int = 3
+    step_down_id: int = 4
+    jump_right_id: int = 5
+    jump_left_id: int = 6
+    jump_up_id: int = 7
+    jump_down_id: int = 8
+
+
 ROLE_SETTING = RoleSettings()
 DB_SETTINGS = DBSettings()
 
@@ -57,3 +68,4 @@ CREDENTIALS_CONFIG = CredentialsSettings()
 STATUS_OF_ELEMENTS_SETTINGS = StatusOfElementsSettings()
 
 VALIDATION_SETTINGS = ValidationSettings()
+ACTIONS_SETTINGS = ActionsSettings()

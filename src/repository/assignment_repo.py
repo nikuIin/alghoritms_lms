@@ -1,7 +1,4 @@
 # module for work with db in asyncio mod
-import uuid
-from typing import Any, Coroutine
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from exceptions.AssignmentException import AssignmentElementFieldError
