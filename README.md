@@ -1,34 +1,12 @@
-# Система обучения основам алгоритмизации для дошкольников
+# React + Vite
 
-## План реализации
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-### Backend:
-#### БД
-* Реализация БД [v]
+Currently, two official plugins are available:
 
-#### API
-* Авторизация/аутентификация [v]
-* CRUD пользователи:
-  * Добавление пользователей [v]
-  * Редактирование пользователей
-  * Удаление пользователей
-  * Получение пользователей:
-      - все пользователи [v]
-      - по роли [v]
-      - по email [v]
-      - по телефону [v]
-      - по логину [v]
-* CRUD курсы
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-[//]: # (* CRUD модули — не будет в первой версии)
+## Expanding the ESLint configuration
 
-[//]: # (* CRUD уроки — не будет в первой версии)
-
-* CRUD задачи:
-  - ручное создание задачи
-  - автоматическое создание задачи
-* CRUD решений
-* CRUD журнала
-
-### Frontend
-...
+If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

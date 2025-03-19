@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from repository.user_repo import logger
+from schemas.action_schema import ActionGet
 from schemas.solution_schema import SolutionGet, SolutionUpdate, SolutionCreate
 import repository.sql_queries.solution_queries as solution_queries
 
@@ -43,6 +44,12 @@ class SolutionRepo:
     async def get_by_assignment(
         session: AsyncSession, assignment_id: str
     ) -> SolutionGet:
+        """
+        return last solution by assignment_id
+        :param session:
+        :param assignment_id:
+        :return:
+        """
 
         async with session:
             result = await session.execute(
@@ -55,6 +62,20 @@ class SolutionRepo:
         solution = SolutionGet(**result.mappings().fetchone())
         logger.info("Created new solution: %s" % solution)
         return solution
+
+    @staticmethod
+    async def get_by_id(
+        session: AsyncSession, solution_id: str
+    ) -> SolutionGet:
+        async with session:
+            result = await session.execute(
+                solution_queries.GET_SOLUTION_BY_ID,
+                params={
+                    "solution_id": solution_id,
+                },
+            )
+
+        return SolutionGet(**result.mappings().fetchone())
 
     @staticmethod
     async def update_solution(
@@ -70,6 +91,7 @@ class SolutionRepo:
                         "solution_id": solution_id,
                         "feedback": solution_in.feedback,
                         "is_correct": solution_in.is_correct,
+                        "answer": solution_in.answer,
                         "solution_status_id": solution_in.solution_status_id,
                         "check_at": solution_in.check_at,
                     },
@@ -85,3 +107,18 @@ class SolutionRepo:
         solution = SolutionGet(**result)
         logger.info("Updated solution (new data): %s" % solution)
         return solution
+
+    @staticmethod
+    async def get_action(
+        action_id: int,
+        session: AsyncSession,
+    ):
+        async with session:
+            result = await session.execute(
+                solution_queries.GET_ACTION,
+                params={
+                    "action_id": action_id,
+                },
+            )
+
+        return ActionGet(**result.mappings().fetchone())

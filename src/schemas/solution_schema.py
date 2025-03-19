@@ -23,6 +23,7 @@ class SolutionCreate(SolutionBase):
 
 
 class SolutionUpdate(SolutionBase):
+    answer: list[int]
     check_at: datetime = datetime.now()
     is_correct: bool | None = None
     feedback: str | None = None

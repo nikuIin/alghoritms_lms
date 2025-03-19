@@ -22,7 +22,7 @@ from schemas.assignment_schema import (
 
 from db.db_helper import db_helper
 from schemas.game_element_schema import GameElementGet, GameElementCreate
-from schemas.solution_schema import SolutionCreate, SolutionUpdate
+from schemas.solution_schema import SolutionCreate, SolutionUpdate, SolutionGet
 from services.assignments_sevices import AssignmentsService
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,6 +49,8 @@ from starlette.responses import Response
 
 from services.user_services import UserService
 
+from utils.solution_utils.solution_checker import solution_check
+
 from repository.solution_repo import SolutionRepo
 
 # utils that check permissions
@@ -69,13 +71,13 @@ async def create_solution(
     return await SolutionRepo.create(session=session, solution_in=solution_in)
 
 
-@router.get("/get_solution/{assignment_id}")
+@router.get("/get_first_solution/{assignment_id}")
 async def get_solution(
     assignment_id: str,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     """
-    Get last solution of assignment by assignment_id.
+    Get first solution of assignment by assignment_id.
     :param assignment_id: Assignment id for which is solution looking at
     :param session: Session to connect to DB
     :return: Return solution of assignment looking for
@@ -83,6 +85,16 @@ async def get_solution(
 
     return await SolutionRepo.get_by_assignment(
         assignment_id=assignment_id, session=session
+    )
+
+
+@router.get("/solution_by_id/{solution_id}")
+async def get_solution_by_id(
+    solution_id: str,
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    return await SolutionRepo.get_by_id(
+        solution_id=solution_id, session=session
     )
 
 
@@ -107,4 +119,36 @@ async def update_solution(
         solution_id=solution_id,
         solution_in=solution_in,
         session=session,
+    )
+
+
+@router.post("/check_solution/")
+async def check_solution(
+    solution_id: str,
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    solution = await SolutionRepo.get_by_id(
+        solution_id=solution_id, session=session
+    )
+
+    assignment = await AssignmentsService.total_info_about_assignment(
+        session=session,
+        assignment_uuid=str(solution.assignment_id),
+    )
+
+    actions = [
+        await SolutionRepo.get_action(command, session)
+        for command in solution.answer
+    ]
+    game_field = assignment[0].field_width, assignment[0].field_height
+    start_position = assignment[0].start_x, assignment[0].start_y
+    end_position = assignment[0].end_x, assignment[0].end_y
+    elements = [(element.pos_x, element.pos_y) for element in assignment[1]]
+
+    return solution_check(
+        actions,
+        game_field,
+        start_position,
+        end_position,
+        elements,
     )

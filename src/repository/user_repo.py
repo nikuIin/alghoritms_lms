@@ -1,4 +1,6 @@
 # http code statuses
+from timeit import timeit
+
 from fastapi import HTTPException
 
 # module for work with db in asyncio mod
@@ -40,6 +42,18 @@ from pathlib import Path
 # __file__ -> path to file
 # method stem get name of file from path without type of file
 logger = ModuleLoger(Path(__file__).stem)
+
+
+def create_user_list(data) -> list[UserWithMD]:
+    return [UserWithMD(**element) for element in data]
+
+
+def create_user_list2(data) -> list[UserWithMD]:
+    user_list = []
+    for element in data:
+        user_list.append(UserWithMD(**element))
+
+    return user_list
 
 
 class UserRepository:
