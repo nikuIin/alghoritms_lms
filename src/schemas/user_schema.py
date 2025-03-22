@@ -29,6 +29,10 @@ class UserCreate(UserWithMD):
     password: str
 
 
+class UserLoginOnly(BaseModel):
+    user_login: str
+
+
 class UserLogin(BaseModel):
     user_login: str
     password: str

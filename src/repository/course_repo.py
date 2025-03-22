@@ -1,5 +1,10 @@
 # module for work with db in asyncio mod
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import text
+
+
+from db.sql_helper import insert_helper
 from schemas.course_schema import CourseBase, CourseGet, CourseCreate
 
 # Logger module
@@ -13,6 +18,8 @@ from core.config import STATUS_OF_ELEMENTS_SETTINGS
 
 # lib for working with path
 from pathlib import Path
+
+from schemas.user_schema import UserLoginOnly
 
 # initialize logger for user repo
 # __file__ -> path to file
@@ -84,6 +91,23 @@ class CourseRepository:
         return courses
 
     @staticmethod
+    async def get_user_courses(
+        user_login: str,
+        session: AsyncSession,
+    ) -> list[CourseGet]:
+        async with session:
+            result = await session.execute(
+                course_queries.GET_USER_COURSES,
+                params={
+                    "user_login": user_login,
+                },
+            )
+        course_list = [
+            CourseGet(**row) for row in result.mappings().fetchall()
+        ]
+        return course_list
+
+    @staticmethod
     async def get_users_on_course(
         course_id: str, session: AsyncSession
     ) -> list[dict]:
@@ -120,6 +144,46 @@ class CourseRepository:
             )
             await session.commit()
         logger.info("Course %s created by %s" % (course.name, course.owner))
+
+    @staticmethod
+    async def add_users_to_course(
+        course_id: str,
+        user_logins: list[str],
+        session: AsyncSession,
+    ):
+        logins_to_course = [
+            ("'" + course_id + "'", "'" + user_login + "'")
+            for user_login in user_logins
+        ]
+        insert_query = insert_helper(
+            course_queries.ADD_USERS_TO_COURSE,
+            logins_to_course,
+        )
+        insert_query += ' on conflict (course_id, user_login) do nothing'
+        try:
+            async with session:
+                await session.execute(text(insert_query))
+                await session.commit()
+
+        except SQLAlchemyError as e:
+            logger.info(e)
+            raise SQLAlchemyError()
+
+        logger.info('Users added successfully to course %s' % course_id)
+
+    @staticmethod
+    async def get_users_from_course(
+        course_id: str,
+        session: AsyncSession,
+    ) -> list[str]:
+        logger.debug(course_id)
+        async with session:
+            result = await session.execute(
+                course_queries.SELECT_COURSE_USERS,
+                params={"course_id": course_id},
+            )
+
+        return [row.user_login for row in result.mappings().fetchall()]
 
     @staticmethod
     async def add_user_to_course(

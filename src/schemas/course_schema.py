@@ -12,12 +12,12 @@ from core.config import STATUS_OF_ELEMENTS_SETTINGS
 
 class CourseBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    course_id: Any
     name: str
 
 
 class CourseGet(CourseBase):
     owner: str
+    course_id: Any
     status_id: int = STATUS_OF_ELEMENTS_SETTINGS.draft
     description: str | None = None
 

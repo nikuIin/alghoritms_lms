@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException, Body, Response, Depends
+from fastapi import APIRouter, HTTPException, Body, Response, Request, Depends
 from typing import List, Any, Coroutine
+
+from repository.course_repo import CourseRepository
 
 # schemas of course
 from schemas.course_schema import CourseGet, CourseCreate
@@ -117,6 +119,25 @@ async def get_courses(
     raise HTTPException(status_code=404, detail="Not Found")
 
 
+@router.get(
+    "/courses-user/{user_login}/",
+)
+async def get_user_courses(
+    user_login: str,
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    courses = await CourseServices.get_user_courses(
+        user_login=user_login, session=session
+    )
+    if courses:
+        return courses
+
+    raise HTTPException(
+        status_code=404,
+        detail=f"Courses of user {user_login} not found",
+    )
+
+
 @router.post("/courses/", status_code=201)
 async def create_course(
     response: Response,
@@ -151,6 +172,7 @@ async def create_course(
 
 @router.post("/courses/register_user/", status_code=204)
 async def add_user_to_course(
+    request: Request,
     course_uuid: str = Body(),
     user_login: str = Body(),
     session: AsyncSession = Depends(db_helper.session_dependency),
@@ -158,6 +180,7 @@ async def add_user_to_course(
     """
     Adds a user to a course.
     """
+    await only_teacher(request)
     try:
         await CourseServices.add_user_to_course(
             course_id=course_uuid, user_login=user_login, session=session
@@ -175,3 +198,34 @@ async def add_user_to_course(
             f"Error occurred while adding user {user_login} to course {course_uuid} - {e}"
         )
         raise HTTPException(status_code=500, detail="Database Server Error")
+
+
+@router.post("/register_users/", status_code=204)
+async def add_users_to_course(
+    request: Request,
+    users: list[str] = Body(),
+    course_uuid: str = Body(),
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    await only_teacher(request)
+    try:
+        await CourseRepository.add_users_to_course(
+            course_id=course_uuid,
+            user_logins=users,
+            session=session,
+        )
+    except SQLAlchemyError:
+        raise HTTPException(status_code=500, detail="Database Server Error")
+
+
+@router.get("/users_from_course/{course_id}/")
+async def get_users_from_course(
+    course_id: str,
+    request: Request,
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    await only_teacher(request)
+    return await CourseRepository.get_users_from_course(
+        course_id=course_id,
+        session=session,
+    )

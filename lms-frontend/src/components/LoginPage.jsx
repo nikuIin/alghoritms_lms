@@ -21,10 +21,10 @@ const LoginPage = () => {
             if (success) {
                 navigate('/user-profile'); // Redirect on successful login
             } else {
-                setError('Login failed. Please check your credentials.');
+                setError('Пароль или логин неверный.');
             }
         } catch (err) {
-            setError('Login failed.  Please check your credentials.');
+            setError('Пароль или логин неверный.');
             console.error("Login error:", err);
         }
     };
@@ -32,11 +32,11 @@ const LoginPage = () => {
     return (
         <div className={'container'}>
             <div className={'wrapper'}>
-                <h2>Login</h2>
+                <h2>Вход</h2>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <label htmlFor="user_login">Username:</label>
+                        <label htmlFor="user_login">Логин:</label>
                         <input
                             type="text"
                             id="user_login"
@@ -45,7 +45,7 @@ const LoginPage = () => {
                         />
                     </div>
                     <div>
-                        <label htmlFor="password">Password:</label>
+                        <label htmlFor="password">Пароль:</label>
                         <input
                             type="password"
                             id="password"
@@ -53,7 +53,7 @@ const LoginPage = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    <button type="submit">Log In</button>
+                    <button type="submit">Войти</button>
                 </form>
             </div>
         </div>

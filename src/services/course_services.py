@@ -68,6 +68,16 @@ class CourseServices:
         )
 
     @staticmethod
+    async def get_user_courses(
+        user_login: str,
+        session: AsyncSession,
+    ):
+        return await CourseRepository.get_user_courses(
+            user_login=user_login,
+            session=session,
+        )
+
+    @staticmethod
     async def get_courses_by_owner(
         owner: str, session: AsyncSession
     ) -> List[CourseGet]:

@@ -19,13 +19,15 @@ const UserProfile = () => {
     };
 
     return (
-        <div>
-            <h2>User Profile</h2>
-            <p>Welcome, {user.user_login}!</p>
-            <p>Email: {user.email}</p>
-            <p>Role: {user.role_id}</p>
+        <div className={'container'}>
+            <div className={'wrapper'}>
+                <h2>Ваш профиль</h2>
+                <p>{user.user_login}!</p>
+                <p>Email: {user.email}</p>
+                <p>Роль: {user.role_id}</p>
 
-            <button onClick={handleLogout}>Logout</button>
+                <button onClick={handleLogout}>Выйти</button>
+            </div>
         </div>
     );
 };

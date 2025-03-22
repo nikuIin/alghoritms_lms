@@ -158,7 +158,7 @@ async def user_auth(
         token = security.create_access_token(
             uid=str([credentials.user_login, credentials.role_id]),
         )
-        # response.set_cookie(AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME, token)
+        response.set_cookie(AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME, token)
         return {"access_token": token}
 
     response.delete_cookie("AccessToken")

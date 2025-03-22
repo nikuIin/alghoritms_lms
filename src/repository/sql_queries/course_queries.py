@@ -12,6 +12,20 @@ GET_COURSES = text(
     """
 )
 
+GET_USER_COURSES = text(
+    """
+    select
+      c.course_id,
+      c.name,
+      c.owner,
+      c.status_id
+    from course c
+    join course_user using (course_id)
+    join "user" using (user_login)
+    where user_login = :user_login;
+    """
+)
+
 IS_COURSE_EXISTS = text(
     """
     select 1
@@ -30,20 +44,6 @@ GET_COURSE_BY_ID = text(
         coalesce(description, '')
     from course
     where course_id = :course_id
-    """
-)
-
-GET_USER_COURSES = text(
-    """
-    select
-        course_id,
-        name,
-        owner,
-        status_id
-        coalesce(description, '')
-    from course
-    join course_user using(course_id)
-    where user_login = :user_login
     """
 )
 
@@ -82,5 +82,19 @@ ADD_USER_TO_COURSE = text(
     insert into course_user (course_id, user_login)
     values (:course_id, :user_login)
     on conflict do nothing
+    """
+)
+
+ADD_USERS_TO_COURSE = """
+    insert into course_user (course_id, user_login)
+    values
+    """
+
+SELECT_COURSE_USERS = text(
+    """
+    select 
+      user_login
+    from course_user
+    where course_id = :course_id 
     """
 )

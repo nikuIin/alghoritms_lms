@@ -38,7 +38,11 @@ async def only_teacher(request: Request):
         role = int(token["sub"][-2:-1])
         if role != ROLE_SETTING.teacher_role_id:
             logger.info("User %s ask access to teacher method." % token["sub"])
-            raise HTTPException(status_code=403, detail="Forbidden.")
+            raise HTTPException(
+                status_code=403, detail="Forbidden. Only for teacher."
+            )
     except Exception as e:
         logger.error(e)
-        raise HTTPException(status_code=403, detail="Forbidden.")
+        raise HTTPException(
+            status_code=403, detail="Forbidden. Only for teacher."
+        )
