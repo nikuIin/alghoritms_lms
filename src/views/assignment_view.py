@@ -11,8 +11,6 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Body
 from typing import List
 
 from repository.assignment_repo import AssignmentRepo
-from repository.user_repo import UserRepository
-from schemas.action_schema import ActionGet
 
 # schemas of course
 from schemas.assignment_schema import (
@@ -46,8 +44,6 @@ from pathlib import Path
 
 from starlette.responses import Response
 
-from services.user_services import UserService
-
 # utils that check permissions
 from utils.user_utils.user_utils import only_teacher
 
@@ -61,6 +57,7 @@ router = APIRouter(tags=["Assignment"])
 @router.get(
     "/assignments/",
     response_model=List[AssignmentGet],
+    status_code=200,
     dependencies=[
         Depends(security.access_token_required),
     ],
@@ -91,7 +88,6 @@ async def get_assignments(
             "Success trying of getting assignments of course %s. "
             "Found %s assignments" % (course_uuid, len(assignments))
         )
-        response.status_code = 201
         return assignments
 
     logger.info(

@@ -16,15 +16,8 @@ GET_COURSE_ASSIGNMENTS = text(
         course_id,
         name,
         status_id,
-        description,
-        field_width,
-        field_height,
-        start_x,
-        start_y,
-        end_x,
-        end_y
+        description 
     from assignment
-    left join game_field_assignment using (assignment_id)
     where course_id = :course_uuid
     """
 )

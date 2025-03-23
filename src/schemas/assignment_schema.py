@@ -25,7 +25,7 @@ class AssignmentCreate(AssignmentBase):
     description: str | None = None
 
 
-class AssignmentGet(AssignmentCreate):
+class AssignmentGet(AssignmentBase):
     assignment_id: Any | str
 
 
