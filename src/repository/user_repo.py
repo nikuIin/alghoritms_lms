@@ -1,4 +1,5 @@
 # http code statuses
+import asyncio
 from timeit import timeit
 
 from fastapi import HTTPException
@@ -19,6 +20,7 @@ from logger.logger_module import ModuleLoger
 
 # SQL queries
 from repository.sql_queries.user_queries import (
+    GET_USERS_LOGINS,
     SELECT_ALL_USERS_INFO,
     SELECT_TEACHERS,
     SELECT_ADMINS,
@@ -101,6 +103,16 @@ class UserRepository:
         except SQLAlchemyError as e:
             logger.error("SQLAlchemyError: %s" % e)
             raise HTTPException(status_code=500, detail="Database error")
+
+    @staticmethod
+    async def get_users_logins(
+        session: AsyncSession,
+    ) -> list[str]:
+
+        async with session:
+            result = await session.execute(GET_USERS_LOGINS)
+
+        return [row.user_login for row in result.mappings().fetchall()]
 
     @staticmethod
     async def get_base_info_by_login(

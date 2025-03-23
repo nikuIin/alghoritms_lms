@@ -60,7 +60,12 @@ const CoursesPage = () => {
     }
 
     if (error) {
-        return <div>Вы пока не записаны ни на один курс</div>;
+        return <>
+             <div>Вы пока не записаны ни на один курс</div>{user && user.role_id === 2 && (
+                <Link to="/create-course">Add Course</Link>
+            )}
+        </>
+
     }
 
     return (

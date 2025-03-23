@@ -17,6 +17,14 @@ CHECK_USER_EXISTS_BY_EMAIL = text(
     """
 )
 
+GET_USERS_LOGINS = text(
+    f"""
+    select user_login
+    from "user"
+    where role_id = {ROLE_SETTING.user_role_id}
+    """
+)
+
 CHECK_USER_EXISTS_BY_PHONE = text(
     """
     select 1

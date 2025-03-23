@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException, Body, Response, Depends, Request
 
+from repository.user_repo import UserRepository
+
 # schemas of user
 from schemas.user_schema import UserWithMD, UserCreate, UserLogin, UserBase
 
@@ -208,7 +210,7 @@ async def get_user_by_login(
 
 
 @router.post(
-    "/create/{login}/",
+    "/create/",
     response_model=UserWithMD,
 )
 async def create_user(
@@ -224,3 +226,12 @@ async def create_user(
     :return: data of new user or error message
     """
     return await UserService.create_user(session, user_in)
+
+
+@router.get('/users_logins/')
+async def get_users_logins(
+    request: Request,
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    # await only_teacher(request)
+    return await UserRepository.get_users_logins(session)

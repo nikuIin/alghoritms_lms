@@ -1,22 +1,31 @@
 // src/components/Header.jsx
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Header.css'; // Create this CSS file for styling
+import AddNewUserPopup from './AddNewUserPopup'; // Import the new component
+import './Header.css';
 
 const Header = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [showAddUserPopup, setShowAddUserPopup] = useState(false); // New state
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
+    const handleAddUserClick = () => {
+        setShowAddUserPopup(true);
+    };
+
+    const handleCloseAddUserPopup = () => {
+        setShowAddUserPopup(false);
+    };
+
     return (
         <header className="header">
             <div className="logo">
-                {/* Add your logo here */}
                 <Link to="/">LMS</Link>
             </div>
             <nav className="navigation">
@@ -30,17 +39,21 @@ const Header = () => {
                         {user.role_id === 2 && (
                             <>
                                 <Link to="/courses">Список курсов</Link>
+                                <a onClick={handleAddUserClick}>Add User</a> {}
                             </>
                         )}
-                        <Link to="/profile" className="user-profile-button"> {/* Corrected this line */}
-                            {/* Replace with a circle user icon */}
-
+                        <Link to="/profile" className="user-profile-button">
+                            Profile
                         </Link>
                     </>
                 ) : (
-                    <Link to="/login">Войти</Link> // Or register button if you want
+                    <Link to="/login">Login</Link>
                 )}
             </nav>
+
+            {showAddUserPopup && (
+                <AddNewUserPopup onClose={handleCloseAddUserPopup} />
+            )}
         </header>
     );
 };

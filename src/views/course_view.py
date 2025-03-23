@@ -37,8 +37,6 @@ from logger.logger_module import ModuleLoger
 # path worker
 from pathlib import Path
 
-from starlette.responses import Response
-
 # utils that check permissions
 from utils.user_utils.user_utils import only_teacher
 
@@ -202,12 +200,12 @@ async def add_user_to_course(
 
 @router.post("/register_users/", status_code=204)
 async def add_users_to_course(
-    request: Request,
-    users: list[str] = Body(),
+    response: Response,
+    users: list[str] = Body(embed=True),
     course_uuid: str = Body(),
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
-    await only_teacher(request)
+    # await only_teacher(request)
     try:
         await CourseRepository.add_users_to_course(
             course_id=course_uuid,
@@ -224,7 +222,7 @@ async def get_users_from_course(
     request: Request,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
-    await only_teacher(request)
+    # await only_teacher(request)
     return await CourseRepository.get_users_from_course(
         course_id=course_id,
         session=session,
