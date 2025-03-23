@@ -17,6 +17,7 @@ from schemas.assignment_schema import (
     AssignmentCreate,
     AssignmentDelete,
     AssignmentUpdate,
+    AssignmentTotalInfo,
 )
 from schemas.game_element_schema import GameElementGet, GameElementCreate
 from services.course_services import CourseServices
@@ -131,7 +132,7 @@ class AssignmentsService:
     async def total_info_about_assignment(
         assignment_uuid: str,
         session: AsyncSession,
-    ) -> tuple[AssignmentGet, tuple[GameElementGet, ...] | None]:
+    ) -> tuple[AssignmentTotalInfo, tuple[GameElementGet, ...] | None]:
         if not validate_uuid(assignment_uuid):
             raise UUIDValidationException()
         try:

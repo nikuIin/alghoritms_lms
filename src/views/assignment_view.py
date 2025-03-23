@@ -16,6 +16,7 @@ from repository.assignment_repo import AssignmentRepo
 from schemas.assignment_schema import (
     AssignmentGet,
     AssignmentCreate,
+    AssignmentTotalInfo,
 )
 
 from db.db_helper import db_helper
@@ -58,9 +59,6 @@ router = APIRouter(tags=["Assignment"])
     "/assignments/",
     response_model=List[AssignmentGet],
     status_code=200,
-    dependencies=[
-        Depends(security.access_token_required),
-    ],
 )
 async def get_assignments(
     response: Response,
@@ -215,12 +213,14 @@ async def delete_assignment(
 
 @router.get(
     "/full_assignment/{assignment_uuid}",
-    response_model=tuple[AssignmentGet, tuple[GameElementGet, ...] | None],
+    response_model=tuple[
+        AssignmentTotalInfo, tuple[GameElementGet, ...] | None
+    ],
 )
 async def get_total_info_assignment(
     assignment_uuid: str,
     session: AsyncSession = Depends(db_helper.session_dependency),
-) -> tuple[AssignmentGet, tuple[GameElementGet, ...] | None]:
+) -> tuple[AssignmentTotalInfo, tuple[GameElementGet, ...] | None]:
     pass
     try:
         data = await AssignmentsService.total_info_about_assignment(

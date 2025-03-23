@@ -29,6 +29,10 @@ class AssignmentGet(AssignmentBase):
     assignment_id: Any | str
 
 
+class AssignmentTotalInfo(AssignmentCreate):
+    assignment_id: Any | str
+
+
 class AssignmentUpdate(AssignmentGet): ...
 
 

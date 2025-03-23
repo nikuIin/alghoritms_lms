@@ -8,14 +8,14 @@ from typing import Any
 
 class GameElementBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    element_id: int
+    name: str
+    element_id: int = 1
+    pos_x: int
+    pos_y: int
 
 
 class GameElementGet(GameElementBase):
-    name: str
-    element_type_id: int = 1
-    pos_x: int
-    pos_y: int
+    pass
 
 
 class GameElementCreate(GameElementGet):

@@ -11,6 +11,7 @@ from schemas.assignment_schema import (
     AssignmentCreate,
     AssignmentGet,
     AssignmentDelete,
+    AssignmentTotalInfo,
 )
 
 from asyncpg.exceptions import RaiseError
@@ -71,7 +72,7 @@ class AssignmentRepo:
     async def create_assignment(
         assignment_in: AssignmentCreate,
         session: AsyncSession,
-    ) -> AssignmentGet | None:
+    ) -> AssignmentCreate | None:
         """
         Create (or update on uuid-conflict) an assignment.
 
@@ -107,8 +108,7 @@ class AssignmentRepo:
                 await session.rollback()
                 raise DatabaseError()
 
-        assignment = AssignmentGet(
-            assignment_id=assignment_uuid,
+        assignment = AssignmentCreate(
             course_id=assignment_in.course_id,
             assignment_type_id=assignment_in.assignment_type_id,
             name=assignment_in.name,
@@ -181,7 +181,7 @@ class AssignmentRepo:
     async def total_info_about_assignment(
         assignment_uuid: str,
         session: AsyncSession,
-    ) -> tuple[AssignmentGet, tuple[GameElementGet, ...] | None] | None:
+    ) -> tuple[AssignmentTotalInfo, tuple[GameElementGet, ...] | None] | None:
         """
         Return total information about an assignment, including elements in the
         table in JSON format.
@@ -196,7 +196,7 @@ class AssignmentRepo:
 
         if data:
             logger.info("Get data: %s" % data)
-            assigment = AssignmentGet(
+            assigment = AssignmentTotalInfo(
                 assignment_id=data["assignment_id"],
                 course_id=data["course_id"],
                 assignment_type_id=data["assignment_type_id"],
