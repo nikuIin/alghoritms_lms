@@ -1,0 +1,63 @@
+/* src/components/AssignmentPage.css */
+
+.assignment-page {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.assignment-page h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.solution-error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.chessboard-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.commands-area {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.commands-area > div {
+    width: 45%;
+}
+
+/* Style for the navigation buttons */
+.navigation-buttons {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 10px;
+}
+
+.navigation-buttons button,
+.navigation-buttons a {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+}
+
+.navigation-buttons button:hover,
+.navigation-buttons a:hover {
+    background-color: #ddd;
+}

@@ -1,0 +1,121 @@
+/* src/components/CreateAssignmentPage.css */
+
+.change_map{
+    padding: 4px;
+    margin: 10px 10px;
+    border: 3px solid black;
+    border-radius: 10px;
+}
+
+.add_element{
+    margin: 0 10px;
+    padding: 10px;
+    background: white;
+    border: 3px solid black;
+    border-radius: 10px;
+}
+
+.error {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 0.5em;
+}
+
+.selected{
+    margin: 0 10px;
+    padding: 10px;
+    border: 3px solid black;
+    border-radius: 10px;
+    background: #5cb85c;
+}
+
+.create-assignment-page {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.create-assignment-page h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.map-controls {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.map-controls div {
+    margin-bottom: 10px;
+}
+
+.map-container {
+    border: 2px solid black;
+    display: inline-block;
+}
+
+.map-row {
+    display: flex;
+}
+
+.map-cell {
+    width: 30px; /* Adjust as needed */
+    height: 30px; /* Adjust as needed */
+    border: 1px solid black;
+    box-sizing: border-box;
+    display: flex; /* For icon alignment */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    cursor: pointer; /* Indicate clickable */
+}
+
+.map-controls button {
+    padding: 8px 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.map-controls button:hover {
+    background-color: #ddd;
+}
+/*Element Palse Style */
+.element-palette {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.element-palette button {
+    padding: 8px 12px;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+.element-palette button:hover {
+    background-color: #ddd;
+}
+
+.element-palette button.selected {
+    background-color: #bbb;
+}
+/* Action Palse Style */
+.actions-palette {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.actions-palette h3 {
+    margin-bottom: 10px;
+}
+
+.actions-palette label {
+    display: inline-block;
+    margin: 5px;
+}

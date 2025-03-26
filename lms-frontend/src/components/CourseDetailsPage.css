@@ -1,3 +1,4 @@
+/* src/components/CourseDetailsPage.css */
 .course-details-page {
     padding: 20px;
 }
@@ -8,4 +9,11 @@
 
 .course-details-page p {
     margin-bottom: 10px;
+}
+
+/* Add styles for the assignments container */
+.assignments-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Or space-around, space-between */
 }

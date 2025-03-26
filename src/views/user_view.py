@@ -1,9 +1,20 @@
-from fastapi import APIRouter, HTTPException, Body, Response, Depends, Request
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Body,
+    Response,
+    Depends,
+    Request,
+)
 
 from repository.user_repo import UserRepository
 
 # schemas of user
-from schemas.user_schema import UserWithMD, UserCreate, UserLogin, UserBase
+from schemas.user_schema import (
+    UserWithMD,
+    UserCreate,
+    UserLogin,
+)
 
 
 from db.db_helper import db_helper
@@ -16,7 +27,7 @@ from pydantic import EmailStr
 
 # Auth library
 # ----------------------
-# import auth settings
+# lets import auth settings
 from core.config import AUTH_CONFIG
 
 # for auth working
@@ -59,7 +70,10 @@ async def get_all_users(
     await only_teacher(request)
     users = await UserService.get_users(session)
     if not users:
-        raise HTTPException(status_code=404, detail="Users not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Users not found",
+        )
 
     return users
 
@@ -79,7 +93,10 @@ async def get_all_students(
         ROLE_SETTING.user_role_id,
     )
     if not students:
-        raise HTTPException(status_code=404, detail="Students not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Students not found",
+        )
 
     return students
 
@@ -89,9 +106,7 @@ async def get_all_teachers(
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     """Get all list of teachers"""
-    teachers = await UserService.get_users(
-        session, ROLE_SETTING.teacher_role_id
-    )
+    teachers = await UserService.get_users(session, ROLE_SETTING.teacher_role_id)
     if not teachers:
         raise HTTPException(status_code=404, detail="Teachers not found")
 
@@ -123,7 +138,6 @@ async def get_user(
     :param session: DB session
     :return: 404 with no data or user model
     """
-    user = None
     if phone and email:
         user = await UserService.get_user_by_phone(session, phone)
         logger.debug(f"Find user by phone {phone}: {user}")
@@ -154,7 +168,9 @@ async def user_auth(
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     if await authentication(
-        session, credentials.user_login, credentials.password
+        session,
+        credentials.user_login,
+        credentials.password,
     ):
         logger.info(f"User %s login successful" % credentials.user_login)
         token = security.create_access_token(
@@ -175,9 +191,7 @@ async def user_auth(
     ],
 )
 async def whoami(request: Request):
-    await only_teacher(
-        request
-    )  # TODO: figure out how create decorator for fast-api route
+    await only_teacher(request)  # TODO: figure out how create decorator for fast-api route
     token = request.cookies[AUTH_CONFIG.JWT_ACCESS_COOKIE_NAME]
     token = decode_token(token=token, key=AUTH_CONFIG.JWT_SECRET_KEY)
     role = int(token["sub"][-2:-1])
@@ -228,7 +242,7 @@ async def create_user(
     return await UserService.create_user(session, user_in)
 
 
-@router.get('/users_logins/')
+@router.get("/users_logins/")
 async def get_users_logins(
     request: Request,
     session: AsyncSession = Depends(db_helper.session_dependency),

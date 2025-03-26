@@ -1,53 +1,43 @@
-from exceptions.AssignmentException import (
-    AssignmentNotFoundException,
-    AssignmentException,
-    AssignmentGameFieldException,
-    AssignmentPositionError,
-    AssignmentElementFieldError,
-)
-from exceptions.CourseException import CourseNotFoundException
-from exceptions.ValidationException import UUIDValidationException
-from fastapi import APIRouter, HTTPException, Depends, Request, Body
+# ---------------------- logger from logger.logger_module import ModuleLoger
+# path worker
+from pathlib import Path
 from typing import List
 
-from repository.assignment_repo import AssignmentRepo
-
-# schemas of course
-from schemas.assignment_schema import (
-    AssignmentGet,
-    AssignmentCreate,
-    AssignmentTotalInfo,
-)
-
-from db.db_helper import db_helper
-from schemas.game_element_schema import GameElementGet, GameElementCreate
-from services.assignments_sevices import AssignmentsService
-
-from sqlalchemy.ext.asyncio import AsyncSession
+# for auth working
+from authx import AuthX
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from sqlalchemy.exc import SQLAlchemyError
-
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.responses import Response
 
 # Auth library
 # ----------------------
 # import auth settings
 from core.config import AUTH_CONFIG
-
-# for auth working
-from authx import AuthX
-
-# ----------------------
-
-# logger
+from db.db_helper import db_helper
+from exceptions.AssignmentException import (
+    AssignmentElementFieldError,
+    AssignmentException,
+    AssignmentGameFieldException,
+    AssignmentNotFoundException,
+    AssignmentPositionError,
+)
+from exceptions.CourseException import CourseNotFoundException
+from exceptions.ValidationException import UUIDValidationException
 from logger.logger_module import ModuleLoger
+from repository.assignment_repo import AssignmentRepo
 
-# path worker
-from pathlib import Path
-
-from starlette.responses import Response
+# schemas of course
+from schemas.assignment_schema import (
+    AssignmentCreate,
+    AssignmentGet,
+    AssignmentTotalInfo,
+)
+from schemas.game_element_schema import GameElementCreate, GameElementGet
+from services.assignments_sevices import AssignmentsService
 
 # utils that check permissions
 from utils.user_utils.user_utils import only_teacher
-
 
 logger = ModuleLoger(Path(__file__).stem)
 
@@ -57,7 +47,7 @@ router = APIRouter(tags=["Assignment"])
 
 @router.get(
     "/assignments/",
-    response_model=List[AssignmentGet],
+    response_model=list[AssignmentGet],
     status_code=200,
 )
 async def get_assignments(
@@ -89,8 +79,7 @@ async def get_assignments(
         return assignments
 
     logger.info(
-        "Fail of getting assignments for course %s. Assignments doesn't exists"
-        % course_uuid
+        "Fail of getting assignments for course %s. Assignments doesn't exists" % course_uuid
     )
     raise HTTPException(
         status_code=404,
@@ -113,10 +102,7 @@ async def create_assignment(
             assignment_in=assignment_in, session=session
         )
     except UUIDValidationException:
-        logger.info(
-            "Failed to create assignment with course uuid: %s"
-            % assignment_in.course_id
-        )
+        logger.info("Failed to create assignment with course uuid: %s" % assignment_in.course_id)
         raise HTTPException(
             status_code=400,
             detail="UUID of course validation error. UUID should be 32..36 "
@@ -129,8 +115,7 @@ async def create_assignment(
         )
         raise HTTPException(
             status_code=400,
-            detail=f"Course with id {assignment_in.course_id} not found, "
-            f"can't create assignment",
+            detail=f"Course with id {assignment_in.course_id} not found, can't create assignment",
         )
     except AssignmentGameFieldException as e:
         raise HTTPException(
@@ -172,10 +157,7 @@ async def delete_assignment(
         logger.error(e)
         raise HTTPException(status_code=500, detail="Database error")
     except UUIDValidationException:
-        logger.info(
-            args="Failed to delete assignment with invalid uuid %s"
-            % assignment_uuid
-        )
+        logger.info(args="Failed to delete assignment with invalid uuid %s" % assignment_uuid)
         raise HTTPException(
             status_code=400,
             detail="UUID of course validation error. UUID should be 32..36 "
@@ -183,8 +165,7 @@ async def delete_assignment(
         )
     except AssignmentNotFoundException:
         logger.info(
-            "Failed to delete assignment with uuid %s. Assignment not found"
-            % assignment_uuid
+            "Failed to delete assignment with uuid %s. Assignment not found" % assignment_uuid
         )
         raise HTTPException(
             status_code=404,
@@ -199,13 +180,8 @@ async def delete_assignment(
 
     if assignment:
         response.status_code = 201
-        logger.info(
-            "Successfully deleted assignment with uuid %s" % assignment_uuid
-        )
-        return {
-            "detail": f"Assigment with id"
-            f" {assignment.assignment_id} successfully deleted"
-        }
+        logger.info("Successfully deleted assignment with uuid %s" % assignment_uuid)
+        return {"detail": f"Assigment with id {assignment.assignment_id} successfully deleted"}
 
     logger.info("Failed to delete assignment with uuid" % assignment_uuid)
     raise HTTPException(status_code=500, detail="Internal server error")
@@ -213,9 +189,7 @@ async def delete_assignment(
 
 @router.get(
     "/full_assignment/{assignment_uuid}",
-    response_model=tuple[
-        AssignmentTotalInfo, tuple[GameElementGet, ...] | None
-    ],
+    response_model=tuple[AssignmentTotalInfo, tuple[GameElementGet, ...] | None],
 )
 async def get_total_info_assignment(
     assignment_uuid: str,
@@ -237,10 +211,7 @@ async def get_total_info_assignment(
         logger.error(e)
         raise HTTPException(status_code=500, detail="Database error")
     except UUIDValidationException:
-        logger.info(
-            args="Failed to delete assignment with invalid uuid %s"
-            % assignment_uuid
-        )
+        logger.info(args="Failed to delete assignment with invalid uuid %s" % assignment_uuid)
         raise HTTPException(
             status_code=400,
             detail="UUID of course validation error. UUID should be 32..36 "
@@ -248,8 +219,7 @@ async def get_total_info_assignment(
         )
     except AssignmentNotFoundException:
         logger.info(
-            "Failed to delete assignment with uuid %s. Assignment not found"
-            % assignment_uuid
+            "Failed to delete assignment with uuid %s. Assignment not found" % assignment_uuid
         )
         raise HTTPException(
             status_code=404,
@@ -297,7 +267,7 @@ async def get_actions(
 
 @router.post("/add_actions/")
 async def add_actions(
-    actions_id: list[int, ...] = Body(),
+    actions_id: list[int] = Body(),
     assignment_uuid: str = Body(),
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
@@ -307,3 +277,8 @@ async def add_actions(
         assignment_uuid=assignment_uuid,
         session=session,
     )
+
+
+@router.get("/all_actions/")
+async def get_all_actions(session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await AssignmentRepo.get_all_actions(session=session)

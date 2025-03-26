@@ -208,3 +208,12 @@ GET_ASSIGNMENT_ACTIONS = text(
     group by assignment_id;
     """
 )
+
+GET_ALL_ACTIONS = text(
+    """
+    select
+        action_id,
+        name
+    from action;
+    """
+)

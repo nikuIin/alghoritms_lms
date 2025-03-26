@@ -55,7 +55,7 @@ class AssignmentsService:
     @staticmethod
     async def create_assignment(
         assignment_in: AssignmentCreate, session: AsyncSession
-    ) -> AssignmentGet | None:
+    ) -> str | None:
         """
         TODO
         :param assignment_in:

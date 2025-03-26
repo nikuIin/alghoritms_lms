@@ -1,44 +1,41 @@
-# http code statuses
-import asyncio
-from timeit import timeit
-
-from fastapi import HTTPException
-
-# module for work with db in asyncio mod
-from sqlalchemy.ext.asyncio import AsyncSession
-from schemas.user_schema import UserWithMD, UserCreate, UserBase
-from sqlalchemy.exc import SQLAlchemyError
-
 # datetime worker
 from datetime import datetime
 
+# lib for working with path
+from pathlib import Path
+
+from fastapi import HTTPException
+
 # Typing library
 from pydantic import EmailStr
+from sqlalchemy import RowMapping
+from sqlalchemy.exc import SQLAlchemyError
+
+# module for work with db in asyncio mod
+from sqlalchemy.ext.asyncio import AsyncSession
+
+# configuration file
+from core.config import ROLE_SETTING
 
 # Logger module
 from logger.logger_module import ModuleLoger
 
 # SQL queries
 from repository.sql_queries.user_queries import (
-    GET_USERS_LOGINS,
-    SELECT_ALL_USERS_INFO,
-    SELECT_TEACHERS,
-    SELECT_ADMINS,
-    SELECT_USERS,
     GET_BASE_USER_INFO_BY_LOGIN,
-    GET_USER_BY_LOGIN,
     GET_USER_BY_EMAIL,
+    GET_USER_BY_LOGIN,
     GET_USER_BY_PHONE,
     GET_USER_CREDENTIALS,
-    INSERT_USER,
+    GET_USERS_LOGINS,
     INSERT_MD_USER,
+    INSERT_USER,
+    SELECT_ADMINS,
+    SELECT_ALL_USERS_INFO,
+    SELECT_TEACHERS,
+    SELECT_USERS,
 )
-
-# configuration file
-from core.config import ROLE_SETTING
-
-# lib for working with path
-from pathlib import Path
+from schemas.user_schema import UserBase, UserCreate, UserWithMD
 
 # initialize logger for user repo
 # __file__ -> path to file
@@ -59,7 +56,6 @@ def create_user_list2(data) -> list[UserWithMD]:
 
 
 class UserRepository:
-
     @staticmethod
     async def is_user_exists(
         session: AsyncSession,
@@ -76,17 +72,11 @@ class UserRepository:
         try:
             async with session:
                 if login:
-                    result = await session.execute(
-                        GET_USER_BY_LOGIN, {"user_login": login}
-                    )
+                    result = await session.execute(GET_USER_BY_LOGIN, {"user_login": login})
                 elif email:
-                    result = await session.execute(
-                        GET_USER_BY_EMAIL, {"user_email": email}
-                    )
+                    result = await session.execute(GET_USER_BY_EMAIL, {"user_email": email})
                 else:
-                    result = await session.execute(
-                        GET_USER_BY_PHONE, {"user_phone": phone}
-                    )
+                    result = await session.execute(GET_USER_BY_PHONE, {"user_phone": phone})
 
                 if result.mappings().fetchone():
                     logger.info(
@@ -95,9 +85,7 @@ class UserRepository:
                     )
                     return True
                 else:
-                    logger.info(
-                        "User not found (%s)" % result.mappings().fetchone()
-                    )
+                    logger.info("User not found (%s)" % result.mappings().fetchone())
                     return False
 
         except SQLAlchemyError as e:
@@ -108,16 +96,13 @@ class UserRepository:
     async def get_users_logins(
         session: AsyncSession,
     ) -> list[str]:
-
         async with session:
             result = await session.execute(GET_USERS_LOGINS)
 
         return [row.user_login for row in result.mappings().fetchall()]
 
     @staticmethod
-    async def get_base_info_by_login(
-        session: AsyncSession, user_login: str
-    ) -> UserBase | None:
+    async def get_base_info_by_login(session: AsyncSession, user_login: str) -> UserBase | None:
         try:
             async with session:
                 result = await session.execute(
@@ -133,9 +118,7 @@ class UserRepository:
             raise HTTPException(status_code=500, detail="Database error")
 
     @staticmethod
-    async def get_users(
-        session: AsyncSession, role=None
-    ) -> list[UserWithMD] | None:
+    async def get_users(session: AsyncSession, role=None) -> list[UserWithMD] | None:
         """Get users by roles. Join table user and md_user by login"""
         if role == ROLE_SETTING.teacher_role_id:
             select_query = SELECT_TEACHERS
@@ -167,7 +150,8 @@ class UserRepository:
         """Get user by login"""
         async with session:
             result = await session.execute(
-                GET_USER_BY_LOGIN, {"user_login": user_login}
+                GET_USER_BY_LOGIN,
+                {"user_login": user_login},
             )
             result = result.mappings().fetchone()
             user_md = UserWithMD(**result) if result else None
@@ -182,12 +166,13 @@ class UserRepository:
         try:
             async with session:
                 result = await session.execute(
-                    GET_USER_BY_EMAIL, {"user_email": user_email}
+                    GET_USER_BY_EMAIL,
+                    {"user_email": user_email},
                 )
                 result = result.mappings().fetchone()
                 user_md = UserWithMD(**result) if result else None
                 return user_md
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             # TODO: log exception
             raise HTTPException(status_code=500, detail="Database error")
 
@@ -199,18 +184,17 @@ class UserRepository:
         """Get user by login"""
         try:
             async with session:
-                result = await session.execute(
-                    GET_USER_BY_PHONE, {"user_phone": user_phone}
-                )
+                result = await session.execute(GET_USER_BY_PHONE, {"user_phone": user_phone})
                 result = result.mappings().fetchone()
                 user_md = UserWithMD(**result) if result else None
                 return user_md
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             raise HTTPException(status_code=500, detail="Database error")
 
     @staticmethod
     async def create_user(
-        session: AsyncSession, user_in: UserCreate
+        session: AsyncSession,
+        user_in: UserCreate,
     ) -> UserWithMD | None:
         """Add user to database (in tables user and md_user)"""
         try:
@@ -256,12 +240,14 @@ class UserRepository:
 
     @staticmethod
     async def get_user_credentials(
-        session: AsyncSession, user_login: str
-    ) -> UserCreate | None:
+        session: AsyncSession,
+        user_login: str,
+    ) -> RowMapping | None:
         try:
             async with session:
                 result = await session.execute(
-                    GET_USER_CREDENTIALS, {"user_login": user_login}
+                    GET_USER_CREDENTIALS,
+                    {"user_login": user_login},
                 )
                 credentials = result.mappings().fetchone()
                 return credentials if credentials else None

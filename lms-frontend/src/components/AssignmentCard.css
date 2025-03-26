@@ -1,0 +1,23 @@
+.assignment-card-link {
+    text-decoration: none; /* Remove underline */
+    color: inherit;         /* Inherit text color from parent */
+    display: block;       /* Make the link fill the entire card */
+}
+
+.assignment-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    transition: background-color 0.2s ease;
+}
+
+.assignment-card:hover {
+    background-color: #eee; /* Lighter background on hover */
+}
+
+.assignment-card h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}

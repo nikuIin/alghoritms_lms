@@ -8,6 +8,8 @@ import Header from './components/Header';
 import CoursesPage from "./components/CoursesPage.jsx";
 import CreateCoursePage from "./components/CreateCoursePage.jsx";
 import CourseDetailsPage from "./components/CourseDetailsPage.jsx";
+import AssignmentPage from "./components/AssignmentPage.jsx";
+import CreateAssignmentPage from "./components/CreateAssignmentPage.jsx";
 
 function App() {
     return (
@@ -45,6 +47,17 @@ function AppContent() {
                     }
                 />
                 <Route path="/course/:courseId" element={<CourseDetailsPage />} /> {}
+                <Route path="/assignment/:assignmentId" element={<AssignmentPage />} /> {}
+                <Route
+                    path="/create-assignment/:courseId"
+                    element={
+                        user && user.role_id === 2 ? (
+                            <CreateAssignmentPage/>
+                        ) : (
+                            <Navigate to="/" />
+                        )
+                    }
+                />
             </Routes>
         </>
     );

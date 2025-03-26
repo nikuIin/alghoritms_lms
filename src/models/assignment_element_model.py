@@ -80,7 +80,7 @@ class GameFieldAssignment(Base):
 
 class AssignmentElement(Base):
     __tablename__ = "assignment_element"
-
+     
     element_id = Column(
         Integer, ForeignKey("element.element_id"), primary_key=True
     )

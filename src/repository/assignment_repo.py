@@ -1,36 +1,28 @@
 # module for work with db in asyncio mod
+# lib for working with path
+from pathlib import Path
+from typing import Sequence
+
+from sqlalchemy.exc import DatabaseError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from exceptions.AssignmentException import AssignmentElementFieldError
-from models.assignment_element_model import (
-    AssignmentElement,
-    AssignmentAction,
-)
-from schemas.action_schema import ActionGet
-from schemas.assignment_schema import (
-    AssignmentCreate,
-    AssignmentGet,
-    AssignmentDelete,
-    AssignmentTotalInfo,
-)
-
-from asyncpg.exceptions import RaiseError
-
-from sqlalchemy.exc import SQLAlchemyError, DatabaseError
-
-# Logger module
-from logger.logger_module import ModuleLoger
 
 # SQL queries
 import repository.sql_queries.assignments_queries as assignments_queries
+from exceptions.AssignmentException import AssignmentElementFieldError
 
-# configuration file
-from core.config import STATUS_OF_ELEMENTS_SETTINGS
-
-# lib for working with path
-from pathlib import Path
-
-from schemas.game_element_schema import GameElementGet, GameElementCreate
+# Logger module
+from logger.logger_module import ModuleLoger
+from models.assignment_element_model import (
+    AssignmentAction,
+    AssignmentElement,
+)
+from schemas.assignment_schema import (
+    AssignmentCreate,
+    AssignmentDelete,
+    AssignmentGet,
+    AssignmentTotalInfo,
+)
+from schemas.game_element_schema import GameElementCreate, GameElementGet
 
 # initialize logger for user repo
 # __file__ -> path to file
@@ -42,7 +34,6 @@ INSERT_ELEMENT_PATTER = "(:element_id, :assignment_id, :pos_x, :pos_y)"
 
 
 class AssignmentRepo:
-
     @staticmethod
     async def is_assignment_exists(
         assignment_uuid: str,
@@ -72,7 +63,7 @@ class AssignmentRepo:
     async def create_assignment(
         assignment_in: AssignmentCreate,
         session: AsyncSession,
-    ) -> AssignmentCreate | None:
+    ) -> str:
         """
         Create (or update on uuid-conflict) an assignment.
 
@@ -121,7 +112,7 @@ class AssignmentRepo:
             end_y=assignment_in.end_y,
         )
 
-        return assignment
+        return assignment_uuid
 
     @staticmethod
     async def update_assignment(
@@ -181,7 +172,7 @@ class AssignmentRepo:
     async def total_info_about_assignment(
         assignment_uuid: str,
         session: AsyncSession,
-    ) -> tuple[AssignmentTotalInfo, tuple[GameElementGet, ...] | None] | None:
+    ) -> tuple[AssignmentTotalInfo, tuple[GameElementGet] | None] | None:
         """
         Return total information about an assignment, including elements in the
         table in JSON format.
@@ -210,8 +201,10 @@ class AssignmentRepo:
                 end_y=data["end_y"],
             )
             elements = None
-            if data["elements"] != [None]:
+            try:
                 elements = [GameElementGet(**row) for row in data["elements"]]
+            except:
+                pass
             logger.info(
                 "Get game elements of %s: %s" % (assignment_uuid, elements)
             )
@@ -229,10 +222,11 @@ class AssignmentRepo:
 
     @staticmethod
     async def add_elements(
-        element_list: list[GameElementCreate, ...],
+        element_list: list[GameElementCreate],
         session: AsyncSession,
     ) -> list[AssignmentElement]:
         try:
+            logger.info(f'Elements for adding: {element_list}')
             assignment_elements = [
                 AssignmentElement(
                     assignment_id=element.assignment_id,
@@ -244,7 +238,7 @@ class AssignmentRepo:
             ]
             logger.info(assignment_elements)
             async with session:
-                session.add(assignment_elements[0])
+                session.add_all(assignment_elements)
                 # session.add_all(assignment_elements)
                 await session.commit()
             logger.info(
@@ -274,7 +268,7 @@ class AssignmentRepo:
 
     @staticmethod
     async def add_actions(
-        actions_id: list[int, any],
+        actions_id: list[int],
         assignment_uuid: str,
         session: AsyncSession,
     ):
@@ -296,3 +290,13 @@ class AssignmentRepo:
             "Actions to assignment %s successfully added: %s"
             % (assignment_uuid, actions_assignment)
         )
+
+    @staticmethod
+    async def get_all_actions(
+        session: AsyncSession,
+    ) -> Sequence:
+        async with session:
+            result = await session.execute(assignments_queries.GET_ALL_ACTIONS)
+
+        actions = result.mappings().fetchall()
+        return actions

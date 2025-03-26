@@ -1,0 +1,26 @@
+/* src/components/CommandsBar.css */
+
+.commands-bar {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f0f0f0;
+    width: 200px; /* Adjust width as needed */
+}
+
+.commands-bar h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.command {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    cursor: grab; /* Change cursor to indicate it's draggable */
+}
+
+.command:hover {
+    background-color: #eee;
+}
