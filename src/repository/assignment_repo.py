@@ -21,6 +21,7 @@ from schemas.assignment_schema import (
     AssignmentDelete,
     AssignmentGet,
     AssignmentTotalInfo,
+    AssignmentUpdate,
 )
 from schemas.game_element_schema import GameElementCreate, GameElementGet
 
@@ -104,6 +105,7 @@ class AssignmentRepo:
             assignment_type_id=assignment_in.assignment_type_id,
             name=assignment_in.name,
             status_id=assignment_in.status_id,
+            level_complexity=assignment_in.level_complexity,
             field_width=assignment_in.field_width,
             field_height=assignment_in.field_height,
             start_x=assignment_in.start_x,
@@ -116,9 +118,9 @@ class AssignmentRepo:
 
     @staticmethod
     async def update_assignment(
-        assignment_in: AssignmentCreate,
+        assignment_in: AssignmentUpdate,
         session: AsyncSession,
-    ) -> AssignmentGet | None:
+    ) -> AssignmentUpdate | None:
         """
         Create an assignment.
 
@@ -137,8 +139,9 @@ class AssignmentRepo:
         result = result.fetchone()
         logger.info("The assignment was created. Params: %s" % result)
 
-        assignment = AssignmentGet(
+        assignment = AssignmentUpdate(
             course_id=result.course_id,
+            level_complexity=result.level_complexity,
             assignment_id=result.assignment_id,
             name=result.name,
             assignment_type_id=result.assignment_type_id,
@@ -191,6 +194,7 @@ class AssignmentRepo:
                 assignment_id=data["assignment_id"],
                 course_id=data["course_id"],
                 assignment_type_id=data["assignment_type_id"],
+                level_complexity=data["level_complexity"],
                 name=data["name"],
                 status_id=data["status_id"],
                 field_width=data["field_width"],
@@ -289,6 +293,28 @@ class AssignmentRepo:
         logger.info(
             "Actions to assignment %s successfully added: %s"
             % (assignment_uuid, actions_assignment)
+        )
+
+    @staticmethod
+    async def delete_actions(
+        assignment_uuid: str,
+        session: AsyncSession,
+    ):
+        try:
+            async with session:
+                await session.execute(
+                    assignments_queries.DELETE_ALL_ACTIONS,
+                    params={
+                        "assignment_id": assignment_uuid,
+                    },
+                )
+                await session.commit()
+        except SQLAlchemyError as e:
+            logger.error(e)
+            await session.rollback()
+
+        logger.info(
+            "Actions from assignment %s successfully deleted" % assignment_uuid
         )
 
     @staticmethod

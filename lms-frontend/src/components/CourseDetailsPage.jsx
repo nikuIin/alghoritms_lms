@@ -80,7 +80,11 @@ const CourseDetailsPage = () => {
             <h3>Assignments</h3>
             <div className="assignments-container">
                 {assignments.map(assignment => (
-                    <AssignmentCard key={assignment.assignment_id} assignment={assignment} />
+                    <AssignmentCard
+                        courseId={courseId}
+                        key={assignment.assignment_id}
+                        assignment={assignment}
+                    />
                 ))}
             </div>
         </div>

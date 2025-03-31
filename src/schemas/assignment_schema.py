@@ -10,6 +10,7 @@ from core.config import STATUS_OF_ELEMENTS_SETTINGS
 class AssignmentBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     course_id: str | Any
+    level_complexity: str
     name: str
     assignment_type_id: int = 1  # TODO take value from config
     status_id: int = STATUS_OF_ELEMENTS_SETTINGS.draft
@@ -18,6 +19,7 @@ class AssignmentBase(BaseModel):
 class AssignmentCreate(AssignmentBase):
     field_width: int
     field_height: int
+    level_complexity: str
     start_x: int
     start_y: int
     end_x: int

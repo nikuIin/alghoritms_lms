@@ -23,7 +23,12 @@ const CreateAssignmentPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [actionError, setActionError] = useState(null);
-    const [mapError, setMapError] = useState(null); // New state for map-related errors
+    const [mapError, setMapError] = useState(null);
+    const [complexityLevel, setComplexityLevel] = useState('normal'); // Default to 'normal'
+
+    const [generateMode, setGenerateMode] = useState(false); // Track if generate mode is active
+    const [wallQuantity, setWallQuantity] = useState(3); // Desired quantity of walls, default is 3
+    const [autoSize, setAutoSize] = useState(false); // Automatic size adjustment
 
     useEffect(() => {
         const fetchAvailableActions = async () => {
@@ -87,46 +92,6 @@ const CreateAssignmentPage = () => {
         }
     };
 
-    function createInitialMap(width, height) {
-        const initialMap = [];
-        for (let y = 0; y < height; y++) {
-            const row = [];
-            for (let x = 0; x < width; x++) {
-                row.push(0); // 0 represents an empty cell
-            }
-            initialMap.push(row);
-        }
-        return initialMap;
-    }
-
-    const addRow = () => {
-        if (field_height < 25) {
-            setFieldHeight(field_height + 1);
-            setMapData([...mapData, Array(field_width).fill(0)]);
-        }
-    };
-
-    const deleteRow = () => {
-        if (field_height > 5) {
-            setFieldHeight(field_height - 1);
-            setMapData(mapData.slice(0, -1));
-        }
-    };
-
-    const addColumn = () => {
-        if (field_width < 25) {
-            setFieldWidth(field_width + 1);
-            setMapData(mapData.map(row => [...row, 0]));
-        }
-    };
-
-    const deleteColumn = () => {
-        if (field_width > 5) {
-            setFieldWidth(field_width - 1);
-            setMapData(mapData.map(row => row.slice(0, -1)));
-        }
-    };
-
     const renderMap = () => (
         <div className="map-container">
             {mapData.map((row, rowIndex) => (
@@ -156,19 +121,19 @@ const CreateAssignmentPage = () => {
         // Check if at least 4 actions are selected
         if (selectedActions.length < 4) {
             setActionError("Please select at least 4 actions.");
-            setMapError(null); // Clear any previous map error
+            setMapError(null);
             return;
         } else {
-            setActionError(null); // Clear any previous action error
+            setActionError(null);
         }
 
         // Check if ant and end positions are set
         if (!antPosition || !endPosition) {
             setMapError("Please place both the ant and the end position on the map.");
-            setActionError(null); // Clear any previous action error
+            setActionError(null);
             return;
         } else {
-            setMapError(null); // Clear any previous map error
+            setMapError(null);
         }
 
         setLoading(true);
@@ -182,23 +147,45 @@ const CreateAssignmentPage = () => {
                 status_id: 1,
                 field_width: parseInt(field_width),
                 field_height: parseInt(field_height),
-                start_x: antPosition?.y, // Use optional chaining
-                start_y: antPosition?.x, // Use optional chaining
-                end_x: endPosition?.y,     // Use optional chaining
-                end_y: endPosition?.x,     // Use optional chaining
+                level_complexity: complexityLevel,
+                start_x: antPosition?.y,
+                start_y: antPosition?.x,
+                end_x: endPosition?.y,
+                end_y: endPosition?.x,
                 description: description,
+                complexity: complexityLevel, // Include the complexity level
             };
             const response = await axios.post('http://127.0.0.1:8000/assignment/', newAssignment);
             if (response.status === 200) {
+                const assignmentId = response.data;
+
                 const actionsData = {
                     actions_id: selectedActions,
-                    assignment_uuid: response.data
+                    assignment_uuid: assignmentId
                 };
                 console.log(actionsData);
                 await axios.post('http://127.0.0.1:8000/add_actions/', actionsData);
+
+                const wallsData = [];
+                mapData.forEach((row, rowIndex) => {
+                    row.forEach((cell, cellIndex) => {
+                        if (cell === 1) {
+                            wallsData.push({
+                                name: "wall",
+                                element_id: 1,
+                                pos_x: cellIndex + 1,
+                                pos_y: rowIndex + 1,
+                                assignment_id: assignmentId
+                            });
+                        }
+                    });
+                });
+
+                await axios.post('http://127.0.0.1:8000/add_elements/', wallsData);
             }
 
             setLoading(false);
+            console.log(`Redirect to /course/${courseId}`)
             navigate(`/course/${courseId}`);
         } catch (err) {
             setError(err.message);
@@ -206,14 +193,156 @@ const CreateAssignmentPage = () => {
         }
     };
 
+    function createInitialMap(width, height) {
+        const initialMap = [];
+        for (let y = 0; y < height; y++) {
+            const row = [];
+            for (let x = 0; x < width; x++) {
+                row.push(0); // 0 represents an empty cell
+            }
+            initialMap.push(row);
+        }
+        return initialMap;
+    }
+
+    const addRow = () => {
+        if (field_height < 15) {
+            setFieldHeight(field_height + 1);
+            setMapData([...mapData, Array(field_width).fill(0)]);
+        }
+    };
+
+    const deleteRow = () => {
+        if (field_height > 5) {
+            setFieldHeight(field_height - 1);
+            setMapData(mapData.slice(0, -1));
+        }
+    };
+
+    const addColumn = () => {
+        if (field_width < 15) {
+            setFieldWidth(field_width + 1);
+            setMapData(mapData.map(row => [...row, 0]));
+        }
+    };
+
+    const deleteColumn = () => {
+        if (field_width > 5) {
+            setFieldWidth(field_width - 1);
+            setMapData(mapData.map(row => row.slice(0, -1)));
+        }
+    };
+
+    const generateTask = () => {
+        // Determine map size
+        const width = autoSize ? Math.floor(Math.random() * (25 - 5 + 1)) + 5 : field_width;
+        const height = autoSize ? Math.floor(Math.random() * (25 - 5 + 1)) + 5 : field_height;
+
+        // Create a new map
+        const newMap = createInitialMap(width, height);
+        let availableCells = [];
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                availableCells.push({ x: x + 1, y: y + 1 }); // Store as 1-based coordinates
+            }
+        }
+
+        // Function to get a random available cell and remove it from the list
+        const getRandomCell = () => {
+            const randomIndex = Math.floor(Math.random() * availableCells.length);
+            const cell = availableCells[randomIndex];
+            availableCells.splice(randomIndex, 1);
+            return cell;
+        };
+
+        // Place ant
+        let newAntPosition = null;
+        let cell = getRandomCell();
+        newAntPosition = { x: cell.x, y: cell.y };
+        const antRowIndex = cell.y - 1;
+        const antCellIndex = cell.x - 1;
+
+        // Place end
+        let newEndPosition = null;
+        cell = getRandomCell();
+        newEndPosition = { x: cell.x, y: cell.y };
+        const endRowIndex = cell.y - 1;
+        const endCellIndex = cell.x - 1;
+
+        //Update the map with ant and end
+        newMap[antRowIndex][antCellIndex] = 2 // Mark as ant
+        newMap[endRowIndex][endCellIndex] = 3  // Mark as end
+
+        // Place walls
+        let wallsPlaced = 0;
+        while (wallsPlaced < wallQuantity && availableCells.length > 0) {
+            cell = getRandomCell();
+            const rowIndex = cell.y - 1;
+            const cellIndex = cell.x - 1;
+            if(
+                cellIndex < height
+                && rowIndex < width
+                && newMap[cellIndex][rowIndex] !== 2
+                && newMap[cellIndex][rowIndex] !== 3
+            ) {
+                newMap[rowIndex][cellIndex] = 1;
+                wallsPlaced++;
+            }
+        }
+
+        setFieldWidth(width);
+        setFieldHeight(height);
+        setMapData(newMap);
+        setAntPosition(newAntPosition);
+        setEndPosition(newEndPosition);
+    };
+
+    const handleWallQuantityChange = (e) => {
+        let value = parseInt(e.target.value);
+
+        // Проверяем, является ли value числом (NaN)
+        if (isNaN(value)) {
+            value = 0; // Или любое другое значение по умолчанию
+        }
+
+        // Ограничиваем значение сверху
+        const max = Math.floor(field_height * field_width / 2)
+        if (value > max) {
+            value = max;
+        }
+
+        // Ограничиваем значение снизу
+        if (value < 0) {
+            value = 0;
+        }
+
+        setWallQuantity(value);
+    };
+
     return (
         <div className="create-assignment-page">
             <h2>Create New Assignment</h2>
+
+            {/* Manual Creation Form */}
             <form onSubmit={handleSubmit}>
                 <div>
                     <label htmlFor="name">Name:</label>
                     <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required />
                 </div>
+
+                <div>
+                    <label htmlFor="complexityLevel">Complexity Level:</label>
+                    <select
+                        id="complexityLevel"
+                        value={complexityLevel}
+                        onChange={(e) => setComplexityLevel(e.target.value)}
+                    >
+                        <option value="easy">Лёгкий</option>
+                        <option value="normal">Нормальный</option>
+                        <option value="hard">Тяжелый</option>
+                    </select>
+                </div>
+
                 <div className="actions-palette">
                     <h3>Available Actions</h3>
                     {availableActions.map((action) => (
@@ -229,7 +358,32 @@ const CreateAssignmentPage = () => {
                     ))}
                     {actionError && <p className="error">{actionError}</p>}
                 </div>
-                {/* Map part */}
+
+                 <a className={"change_map"} onClick={() => setGenerateMode(!generateMode)}>
+                        {generateMode ? 'Закрыть генерацию' : 'Сгенерировать автоматически'}
+                    </a>
+                    {generateMode && (
+                        <div className="generate-settings">
+                            <h3>Генерация задания</h3>
+                            <div>
+                                <label>
+                                    Количество стен (максимальное {Math.floor(field_width * field_height / 2)}):
+                                </label>
+                                <input
+                                    type="number"
+                                    value={wallQuantity}
+                                    onChange={handleWallQuantityChange}
+                                    min="0"
+                                    max={Math.floor(field_width * field_height / 2)}
+                                />
+                            </div>
+
+                            <div className={"center"}>
+                                <a className={"change_map"} onClick={generateTask}>Сгенерировать</a>
+                            </div>
+                        </div>
+                    )}
+
                 <div className="element-palette">
                     <a
                         onClick={() => setSelectedElement('ant')}
@@ -261,17 +415,23 @@ const CreateAssignmentPage = () => {
                         <a className="change_map" onClick={addRow}>Add Row</a>
                         <a className="change_map" onClick={deleteRow}>Delete Row</a>
                     </div>
+
+
                     <button type="button" onClick={() => navigate(`/course/${courseId}`)}>
                         Cancel
                     </button>
                 </div>
-                {mapError && <p className="error">{mapError}</p>} {/* Display map error */}
+
+                {mapError && <p className="error">{mapError}</p>}
                 {renderMap()}
                 <button type="submited" disabled={loading}>
                     {loading ? 'Creating...' : 'Create'}
                 </button>
             </form>
+
+
         </div>
+
     );
 };
 

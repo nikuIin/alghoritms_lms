@@ -14,6 +14,7 @@ GET_COURSE_ASSIGNMENTS = text(
     select
         assignment_id,
         course_id,
+        level_complexity,
         name,
         status_id,
         description 
@@ -29,6 +30,7 @@ GET_GAME_ASSIGNMENT_BY_ID = text(
         assignment_id,
         name,
         status_id,
+        level_complexity,
         description,
         field_width,
         field_height,
@@ -60,6 +62,7 @@ CREATE_ASSIGNMENT = text(
      name,
      course_id,
      assignment_type_id,
+     level_complexity,
      status_id,
      description
     )
@@ -67,6 +70,7 @@ CREATE_ASSIGNMENT = text(
         :name,      
         :course_id, 
         :assignment_type_id,
+        :level_complexity,
         :status_id, 
         :description
     )
@@ -132,6 +136,7 @@ GET_TOTAL_INFO_ABOUT_ASSIGNMENT = text(
       assignment_type_id,
       course_id,
       a.name,
+      level_complexity,
       description,
       field_width,
       field_height,
@@ -215,5 +220,12 @@ GET_ALL_ACTIONS = text(
         action_id,
         name
     from action;
+    """
+)
+
+DELETE_ALL_ACTIONS = text(
+    """
+    delete from assignment_action
+    where assignment_id = :assignment_id
     """
 )

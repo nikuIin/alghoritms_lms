@@ -15,6 +15,13 @@
     border-radius: 10px;
 }
 
+.center{
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .error {
     color: red;
     font-size: 0.8em;
@@ -61,8 +68,8 @@
 }
 
 .map-cell {
-    width: 30px; /* Adjust as needed */
-    height: 30px; /* Adjust as needed */
+    width: 50px; /* Adjust as needed */
+    height: 50px; /* Adjust as needed */
     border: 1px solid black;
     box-sizing: border-box;
     display: flex; /* For icon alignment */
@@ -108,7 +115,6 @@
 /* Action Palse Style */
 .actions-palette {
     text-align: center;
-    margin-bottom: 20px;
 }
 
 .actions-palette h3 {
@@ -118,4 +124,11 @@
 .actions-palette label {
     display: inline-block;
     margin: 5px;
+}
+
+.generate-settings{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }

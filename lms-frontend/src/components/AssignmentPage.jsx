@@ -7,8 +7,9 @@ import CommandsBar from './CommandsBar';
 import SolutionBar from './SolutionBar';
 import './AssignmentPage.css';
 
+
 const AssignmentPage = () => {
-    const { assignmentId } = useParams();
+    const { assignmentId} = useParams();
     const navigate = useNavigate();
     const [assignment, setAssignment] = useState(null);
     const [elements, setElements] = useState([]);
@@ -21,7 +22,7 @@ const AssignmentPage = () => {
     const [antDirection, setAntDirection] = useState('right');
     const [assignments, setAssignments] = useState([]); // List of all assignments in the course
     const [currentAssignmentIndex, setCurrentAssignmentIndex] = useState(-1); // Index of current assignment
-
+    const courseId = new URLSearchParams(window.location.search).get('course_id')
     useEffect(() => {
         const fetchAssignmentData = async () => {
             setLoading(true);
@@ -165,15 +166,17 @@ const AssignmentPage = () => {
 
     const handlePreviousAssignment = () => {
         const previousIndex = currentAssignmentIndex - 1;
+        setSolution([])
         if (previousIndex >= 0) {
-            navigate(`/assignment/${assignments[previousIndex].assignment_id}`);
+            navigate(`/assignment/${assignments[previousIndex].assignment_id}?course_id=${courseId}`);
         }
     };
 
     const handleNextAssignment = () => {
+        setSolution([])
         const nextIndex = currentAssignmentIndex + 1;
         if (nextIndex < assignments.length) {
-            navigate(`/assignment/${assignments[nextIndex].assignment_id}`);
+            navigate(`/assignment/${assignments[nextIndex].assignment_id}?course_id=${courseId}`);
         }
     };
 
@@ -195,7 +198,7 @@ const AssignmentPage = () => {
             {solutionError && <div className="solution-error">{solutionError}</div>}
 
             <div className="navigation-buttons">
-                <Link to="/courses">Exit</Link> {/* Exit to Course Page */}
+                <button onClick={() => navigate(`/course/${courseId}`)}>Exit</button>
                 {currentAssignmentIndex > 0 && (
                     <button onClick={handlePreviousAssignment}>Previous Assignment</button>
                 )}
