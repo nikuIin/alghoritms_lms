@@ -35,7 +35,8 @@ class AssignmentTotalInfo(AssignmentCreate):
     assignment_id: Any | str
 
 
-class AssignmentUpdate(AssignmentGet): ...
+class AssignmentUpdate(AssignmentCreate):
+    assignment_id: Any | str
 
 
 class AssignmentDelete(BaseModel):

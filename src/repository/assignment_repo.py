@@ -118,36 +118,33 @@ class AssignmentRepo:
 
     @staticmethod
     async def update_assignment(
-        assignment_in: AssignmentUpdate,
+        assignment_update: AssignmentUpdate,
         session: AsyncSession,
     ) -> AssignmentUpdate | None:
         """
         Create an assignment.
 
-        :param assignment_in: Assignment data to create.
+        :param assignment_update: Assignment data to create.
         :param session: Async session to database.
         """
 
         # TODO what are you sinking about update history?
         async with session:
-            result = await session.execute(
-                assignments_queries.CREATE_ASSIGNMENT,
-                params=assignment_in.model_dump(),
+            await session.execute(
+                assignments_queries.UPDATE_ASSIGNMENT,
+                params=assignment_update.model_dump(),
+            )
+            await session.execute(
+                assignments_queries.UPDATE_GAME_ASSIGNMENT,
+                params=assignment_update.model_dump(),
             )
             await session.commit()
 
-        result = result.fetchone()
-        logger.info("The assignment was created. Params: %s" % result)
-
-        assignment = AssignmentUpdate(
-            course_id=result.course_id,
-            level_complexity=result.level_complexity,
-            assignment_id=result.assignment_id,
-            name=result.name,
-            assignment_type_id=result.assignment_type_id,
-            status_id=result.status_id,
+        logger.info(
+            "Assignment %s successfully updated: %s"
+            % (assignment_update.assignment_id, assignment_update.model_dump())
         )
-        return assignment
+        return assignment_update
 
     @staticmethod
     async def delete_assignment(
@@ -315,6 +312,22 @@ class AssignmentRepo:
 
         logger.info(
             "Actions from assignment %s successfully deleted" % assignment_uuid
+        )
+
+    @staticmethod
+    async def delete_all_elements(
+        session: AsyncSession,
+        assignment_uuid: str,
+    ):
+        async with session:
+            await session.execute(
+                assignments_queries.DELETE_ALL_ELEMENTS,
+                params={"assignment_id": assignment_uuid},
+            )
+            await session.commit()
+
+        logger.info(
+            "Elements of assignment %s successfully deleted" % assignment_uuid
         )
 
     @staticmethod

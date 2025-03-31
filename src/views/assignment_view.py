@@ -143,13 +143,13 @@ async def create_assignment(
     raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.put("/assignment/{assignemnt_id}")
+@router.put("/assignment/")
 async def update_assignment(
     assignment_in: AssignmentUpdate,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     await AssignmentRepo.update_assignment(
-        assignment_in=assignment_in, session=session
+        assignment_update=assignment_in, session=session
     )
 
 
@@ -318,11 +318,20 @@ async def delete_all_actions(
         session=session,
     )
 
-    return {"success": True}
-
 
 @router.get("/all_actions/")
 async def get_all_actions(
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     return await AssignmentRepo.get_all_actions(session=session)
+
+
+@router.delete("/elements/", status_code=204)
+async def delete_all_elements(
+    assignment_uuid: str,
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    await AssignmentRepo.delete_all_elements(
+        assignment_uuid=assignment_uuid,
+        session=session,
+    )

@@ -20,6 +20,7 @@ GET_COURSE_ASSIGNMENTS = text(
         description 
     from assignment
     where course_id = :course_uuid
+    order by name
     """
 )
 
@@ -113,6 +114,23 @@ UPDATE_ASSIGNMENT = text(
     description = :description
     where 
     assignment_id = :assignment_id 
+    returning *
+    """
+)
+
+UPDATE_GAME_ASSIGNMENT = text(
+    """
+    update
+      game_field_assignment
+    set
+      field_width = :field_width,
+      field_height = :field_height,
+      start_x = :start_x,
+      start_y = :start_y,
+      end_x = :end_x,
+      end_y = :end_y,
+      updated_at = current_timestamp
+    where assignment_id = :assignment_id
     returning *
     """
 )
@@ -226,6 +244,13 @@ GET_ALL_ACTIONS = text(
 DELETE_ALL_ACTIONS = text(
     """
     delete from assignment_action
+    where assignment_id = :assignment_id
+    """
+)
+
+DELETE_ALL_ELEMENTS = text(
+    """
+    delete from assignment_element
     where assignment_id = :assignment_id
     """
 )
