@@ -1,0 +1,107 @@
+/* Базовые стили для страницы для лучшего вида */
+body {
+    font-family: sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+/* Контейнер всего списка */
+.solution-list-container {
+    max-width: 900px;
+    margin: 20px auto; /* Центрирование и отступы */
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Заголовок списка */
+.solution-list-header {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+/* Сетка для карточек */
+.solution-list {
+    display: grid;
+}
+
+/* Стили для отдельной карточки */
+.solution-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    transition:
+        transform 0.2s ease-in-out,
+        box-shadow 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column; /* Элементы внутри карточки идут друг под другом */
+    justify-content: space-between; /* Распределяем пространство */
+}
+
+.solution-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Заголовок (название задачи) в карточке */
+.solution-card__title {
+    font-size: 1.1em;
+    color: #34495e;
+    margin-top: 0;
+    margin-bottom: 8px;
+    /* Можно добавить ограничение по высоте, если названия длинные */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
+    /* white-space: nowrap; */
+}
+
+/* Информация о пользователе */
+.solution-card__user {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin-bottom: 15px; /* Отступ перед кнопкой */
+    flex-grow: 1; /* Занимает доступное пространство, отодвигая кнопку вниз */
+}
+
+/* Кнопка "Проверить" */
+.solution-card__button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+    align-self: flex-start; /* Кнопка не растягивается на всю ширину */
+}
+
+.solution-card__button:hover {
+    background-color: #2980b9;
+}
+
+/* Сообщения о состоянии */
+.loading-message,
+.error-message,
+.info-message {
+    text-align: center;
+    font-size: 1.2em;
+    padding: 40px;
+    color: #555;
+}
+
+.error-message {
+    color: #e74c3c; /* Красный для ошибок */
+    background-color: #fdd;
+    border: 1px solid #e74c3c;
+    border-radius: 4px;
+}

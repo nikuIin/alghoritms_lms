@@ -1,0 +1,274 @@
+/* Базовые стили */
+body {
+    font-family: sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.solution-review-page {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Заголовок страницы */
+.review-header {
+    display: flex; /* Используем Flexbox для выравнивания */
+    align-items: center; /* Выравнивание по вертикали */
+    justify-content: space-between; /* Разносим элементы по краям */
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    position: relative; /* Для позиционирования кнопки Назад */
+}
+
+.review-header h2 {
+    color: #343a40;
+    margin: 0;
+    text-align: center; /* Центрируем основной заголовок */
+    flex-grow: 1; /* Позволяем заголовку занять доступное пространство */
+}
+
+.review-header .user-info {
+    font-size: 1em;
+    color: #6c757d;
+    margin: 0;
+    white-space: nowrap; /* Предотвратить перенос логина */
+    margin-left: 15px; /* Небольшой отступ слева */
+}
+.review-header .back-button {
+    margin-right: 15px; /* Отступ справа от кнопки */
+    padding: 6px 12px;
+    font-size: 0.9em;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.review-header .back-button:hover {
+    background-color: #5a6268;
+}
+.review-header .back-button:disabled {
+    background-color: #adb5bd;
+    cursor: not-allowed;
+}
+
+/* Основная область контента (поле + решение/оценка) */
+.main-content-area {
+    display: flex;
+    flex-wrap: wrap; /* Позволяет переноситься на новую строку на малых экранах */
+    gap: 30px; /* Пространство между левой и правой частями */
+}
+
+/* Контейнер для шахматной доски */
+.chessboard-container {
+    flex: 1; /* Занимает доступное пространство */
+    min-width: 350px; /* Минимальная ширина для доски */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрируем доску */
+}
+
+/* Панель управления анимацией под доской */
+.solution-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.solution-controls button {
+    padding: 10px 18px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.2s ease;
+}
+
+.solution-controls button:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.solution-controls button:disabled {
+    background-color: #b0c4de; /* Светло-синий для неактивных кнопок */
+    cursor: not-allowed;
+}
+
+.solution-controls button .fa-stop {
+    color: #dc3545; /* Красный для стоп */
+}
+
+/* Правая часть: Решение и форма оценки */
+.review-area {
+    flex: 1; /* Занимает доступное пространство */
+    min-width: 300px; /* Минимальная ширина */
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Стили для ReadOnlySolutionBar (адаптированные из AssignmentPage) */
+.solution-bar.read-only {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    max-height: 300px; /* Ограничение высоты с прокруткой */
+    overflow-y: auto;
+}
+
+.solution-bar.read-only h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #495057;
+    font-size: 1.1em;
+}
+
+.solution-bar-empty {
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.solution-steps-list {
+    list-style: decimal inside;
+    padding-left: 0;
+    margin: 0;
+}
+
+.solution-step.read-only {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 0.95em;
+    color: #212529;
+}
+
+/* Форма оценки */
+.review-form {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.review-form h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #343a40;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box; /* Учитывает padding и border в ширине */
+}
+
+.form-group select {
+    /* Делаем селект немного меньше по высоте */
+    padding: 8px 10px;
+    max-width: 100px; /* Ограничим ширину селекта */
+}
+
+.form-group textarea {
+    resize: vertical; /* Позволяет изменять размер только по вертикали */
+    min-height: 80px;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.submit-review-button {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #28a745; /* Зеленый для отправки */
+    color: white;
+    transition: background-color 0.2s ease;
+    margin-top: 10px;
+}
+
+.submit-review-button:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+.submit-review-button:disabled {
+    background-color: #a3d9b1;
+    cursor: not-allowed;
+}
+
+/* Сообщения о состоянии и ошибках */
+.loading,
+.error,
+.animation-error,
+.submitting-info {
+    text-align: center;
+    padding: 20px;
+    margin: 15px auto;
+    border-radius: 5px;
+    max-width: 600px;
+}
+
+.loading {
+    color: #17a2b8;
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+}
+
+.error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+.animation-error {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    margin-bottom: 15px; /* Отступ снизу */
+}
+
+.submitting-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    margin-bottom: 15px;
+}

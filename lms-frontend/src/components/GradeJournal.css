@@ -1,0 +1,142 @@
+/* src/components/GradeJournal.css */
+
+.grade-journal-container {
+    padding: 20px;
+    font-family: sans-serif;
+    max-width: 900px; /* Ограничим ширину для читаемости */
+    margin: 20px auto; /* Центрируем */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.grade-journal-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+.grade-journal-message,
+.grade-journal-error {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.grade-journal-error {
+    color: #dc3545; /* Красный для ошибок */
+    font-weight: bold;
+}
+
+/* --- Стили для таблицы администратора --- */
+.admin-grades-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.admin-grades-table th,
+.admin-grades-table td {
+    border: 1px solid #ddd;
+    padding: 10px 12px; /* Увеличим паддинг */
+    text-align: left;
+    vertical-align: middle; /* Выравниваем по центру вертикально */
+}
+
+.admin-grades-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+}
+
+.admin-grades-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.admin-grades-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.grade-actions {
+    display: flex;
+    gap: 10px; /* Немного больше пространства */
+    justify-content: center; /* Центрируем кнопки */
+}
+
+/* --- Стили иконок (взяты и адаптированы из AssignmentCard.css) --- */
+.icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.1em; /* Чуть крупнее иконки */
+    color: #555;
+    transition: color 0.2s ease-in-out, transform 0.1s ease; /* Добавим transform */
+}
+
+.icon-button:hover {
+    color: #000;
+    transform: scale(1.1); /* Небольшое увеличение при наведении */
+}
+
+.edit-button:hover {
+    color: #007bff; /* Синий для редактирования */
+}
+
+.delete-button:hover {
+    color: #dc3545; /* Красный для удаления */
+}
+
+
+/* --- Стили для карточек студента --- */
+.student-grades-list {
+    margin-top: 20px;
+}
+
+ .student-grades-list h3 {
+    color: #444;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.student-grade-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-left: 5px solid #007bff; /* Синяя полоска слева */
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: box-shadow 0.2s ease;
+}
+
+.student-grade-card:hover {
+     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+}
+
+.assignment-id {
+    color: #555;
+    font-size: 0.95em;
+}
+
+.grade-value {
+    font-weight: bold;
+    font-size: 1.3em; /* Крупная оценка */
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: white;
+    min-width: 35px; /* Минимальная ширина для красоты */
+    text-align: center;
+}
+
+/* Цвета для разных оценок (пример) */
+.grade-5 { background-color: #28a745; } /* Зеленый */
+.grade-4 { background-color: #8fbc8f; } /* Светло-зеленый */
+.grade-3 { background-color: #ffc107; } /* Желтый */
+.grade-2 { background-color: #fd7e14; } /* Оранжевый */
+.grade-1, .grade-0 { background-color: #dc3545; } /* Красный */
+/* Можно добавить стили для других оценок, если они есть */
