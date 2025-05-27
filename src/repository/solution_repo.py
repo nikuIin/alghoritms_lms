@@ -1,20 +1,15 @@
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import repository.sql_queries.solution_queries as solution_queries
 from repository.user_repo import logger
 from schemas.action_schema import ActionGet
-from schemas.solution_schema import SolutionGet, SolutionUpdate, SolutionCreate
-import repository.sql_queries.solution_queries as solution_queries
-
-from sqlalchemy.exc import SQLAlchemyError
+from schemas.solution_schema import SolutionCreate, SolutionGet, SolutionUpdate
 
 
 class SolutionRepo:
-
     @staticmethod
-    async def create(
-        session: AsyncSession, solution_in: SolutionCreate
-    ) -> SolutionGet:
-
+    async def create(session: AsyncSession, solution_in: SolutionCreate) -> SolutionGet:
         async with session:
             try:
                 result = await session.execute(
@@ -34,16 +29,19 @@ class SolutionRepo:
                 raise SQLAlchemyError(e)
 
         result = result.mappings().fetchone()
-
-        solution = SolutionGet(**result)
+        logger.warning(result)
+        solution = SolutionGet(
+            user_login=result["user_login"],
+            assignment_id=result["assignment_id"],
+            answer=result["answer"],
+            solution_id=result["solution_status_id"],
+        )
         logger.info("Created new solution: %s" % solution)
 
         return solution
 
     @staticmethod
-    async def get_by_assignment(
-        session: AsyncSession, assignment_id: str
-    ) -> SolutionGet:
+    async def get_by_assignment(session: AsyncSession, assignment_id: str) -> SolutionGet:
         """
         return last solution by assignment_id
         :param session:
@@ -64,9 +62,7 @@ class SolutionRepo:
         return solution
 
     @staticmethod
-    async def get_by_id(
-        session: AsyncSession, solution_id: str
-    ) -> SolutionGet:
+    async def get_by_id(session: AsyncSession, solution_id: str) -> SolutionGet:
         async with session:
             result = await session.execute(
                 solution_queries.GET_SOLUTION_BY_ID,

@@ -5,6 +5,7 @@ from typing import Sequence
 
 from sqlalchemy.exc import DatabaseError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import text
 
 # SQL queries
 import repository.sql_queries.assignments_queries as assignments_queries
@@ -78,9 +79,7 @@ class AssignmentRepo:
                     assignments_queries.CREATE_ASSIGNMENT,
                     params=assignment_in.model_dump(),
                 )
-                assignment_uuid = (
-                    result.mappings().fetchone().get("assignment_id")
-                )
+                assignment_uuid = result.mappings().fetchone().get("assignment_id")
                 logger.info(f"Created assignment {assignment_uuid}")
                 await session.execute(
                     assignments_queries.CREATE_GAME_ASSIGNMENT,
@@ -161,6 +160,26 @@ class AssignmentRepo:
 
         async with session:
             await session.execute(
+                text("delete from solution_history where assignment_id=:assignment_id"),
+                params={"assignment_id": assignment_id},
+            )
+            await session.execute(
+                text("delete from solution where assignment_id=:assignment_id"),
+                params={"assignment_id": assignment_id},
+            )
+            await session.execute(
+                text("delete from assignment_action where assignment_id=:assignment_id"),
+                params={"assignment_id": assignment_id},
+            )
+            await session.execute(
+                text("delete from assignment_element where assignment_id=:assignment_id"),
+                params={"assignment_id": assignment_id},
+            )
+            await session.execute(
+                text("delete from game_field_assignment where assignment_id=:assignment_id"),
+                params={"assignment_id": assignment_id},
+            )
+            await session.execute(
                 assignments_queries.SAFE_DELETE_ASSIGNMENT,
                 params={"assignment_id": assignment_id},
             )
@@ -206,19 +225,12 @@ class AssignmentRepo:
                 elements = [GameElementGet(**row) for row in data["elements"]]
             except:
                 pass
-            logger.info(
-                "Get game elements of %s: %s" % (assignment_uuid, elements)
-            )
-            logger.info(
-                "Available actions of assignment %s: %s"
-                % (assignment_uuid, elements)
-            )
+            logger.info("Get game elements of %s: %s" % (assignment_uuid, elements))
+            logger.info("Available actions of assignment %s: %s" % (assignment_uuid, elements))
             if assigment:
                 return assigment, elements
         else:
-            logger.info(
-                "Request to not exists assignment with id %s" % assignment_uuid
-            )
+            logger.info("Request to not exists assignment with id %s" % assignment_uuid)
         return None
 
     @staticmethod
@@ -227,7 +239,7 @@ class AssignmentRepo:
         session: AsyncSession,
     ) -> list[AssignmentElement]:
         try:
-            logger.info(f'Elements for adding: {element_list}')
+            logger.info(f"Elements for adding: {element_list}")
             assignment_elements = [
                 AssignmentElement(
                     assignment_id=element.assignment_id,
@@ -242,9 +254,7 @@ class AssignmentRepo:
                 session.add_all(assignment_elements)
                 # session.add_all(assignment_elements)
                 await session.commit()
-            logger.info(
-                "Elements successfully added: %s" % assignment_elements
-            )
+            logger.info("Elements successfully added: %s" % assignment_elements)
             return assignment_elements
         except SQLAlchemyError as e:
             logger.info("Conflict with creating assigment elements: %s " % e)
@@ -274,9 +284,7 @@ class AssignmentRepo:
         session: AsyncSession,
     ):
         actions_assignment = [
-            AssignmentAction(
-                assignment_id=assignment_uuid, action_id=action_id
-            )
+            AssignmentAction(assignment_id=assignment_uuid, action_id=action_id)
             for action_id in actions_id
         ]
         try:
@@ -310,9 +318,7 @@ class AssignmentRepo:
             logger.error(e)
             await session.rollback()
 
-        logger.info(
-            "Actions from assignment %s successfully deleted" % assignment_uuid
-        )
+        logger.info("Actions from assignment %s successfully deleted" % assignment_uuid)
 
     @staticmethod
     async def delete_all_elements(
@@ -326,9 +332,7 @@ class AssignmentRepo:
             )
             await session.commit()
 
-        logger.info(
-            "Elements of assignment %s successfully deleted" % assignment_uuid
-        )
+        logger.info("Elements of assignment %s successfully deleted" % assignment_uuid)
 
     @staticmethod
     async def get_all_actions(

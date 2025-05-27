@@ -41,16 +41,13 @@ logger = ModuleLoger(Path(__file__).stem)
 
 
 class AssignmentsService:
-
     @staticmethod
     async def get_course_assignments(
         course_uuid: str, session: AsyncSession
     ) -> List[AssignmentGet]:
         if not validate_uuid(course_uuid):
             raise UUIDValidationException()
-        return await AssignmentRepo.get_course_assignments(
-            course_uuid=course_uuid, session=session
-        )
+        return await AssignmentRepo.get_course_assignments(course_uuid=course_uuid, session=session)
 
     @staticmethod
     async def create_assignment(
@@ -66,25 +63,15 @@ class AssignmentsService:
             raise UUIDValidationException()
 
         # game field validation
-        if not validate_game_field(
-            assignment_in.field_width, assignment_in.field_height
-        ):
-            raise AssignmentGameFieldException(
-                "Field width or height violate standards."
-            )
+        if not validate_game_field(assignment_in.field_width, assignment_in.field_height):
+            raise AssignmentGameFieldException("Field width or height violate standards.")
 
         if not position_validator(assignment_in):
-            logger.warning(
-                "Position is invalid. Check position_validator, it's works incorrectly."
-            )
+            logger.warning("Position is invalid. Check position_validator, it's works incorrectly.")
             raise AssignmentException("Position is invalid.")
 
-        logger.info(
-            "Start checking course assignment %s" % assignment_in.course_id
-        )
-        if not await CourseServices.is_course_exists(
-            assignment_in.course_id, session
-        ):
+        logger.info("Start checking course assignment %s" % assignment_in.course_id)
+        if not await CourseServices.is_course_exists(assignment_in.course_id, session):
             raise CourseNotFoundException()
 
         try:
@@ -102,31 +89,19 @@ class AssignmentsService:
             raise UUIDValidationException()
 
     @staticmethod
-    async def delete_assignment(
-        assignment_uuid: str, session: AsyncSession
-    ) -> AssignmentDelete:
+    async def delete_assignment(assignment_uuid: str, session: AsyncSession) -> AssignmentDelete:
         if not validate_uuid(assignment_uuid):
             raise UUIDValidationException()
         try:
             return await AssignmentRepo.delete_assignment(
                 assignment_id=assignment_uuid, session=session
             )
-        except ForeignKeyViolationError as e:
+        except Exception as e:
             logger.error(e)
-            raise AssignmentNotFoundException()
-        except IntegrityError as e:
-            logger.error(e)
-            raise AssignmentNotFoundException()
-        except DataError as e:
-            logger.error(e)
-            raise UUIDValidationException()
-        except DatabaseError:
             raise AssignmentException()
 
     @staticmethod
-    async def update_assignment(
-        assignment_uuid: str, session: AsyncSession
-    ): ...
+    async def update_assignment(assignment_uuid: str, session: AsyncSession): ...
 
     @staticmethod
     async def total_info_about_assignment(
@@ -153,6 +128,4 @@ class AssignmentsService:
         element_list: list[GameElementCreate, ...],
         session: AsyncSession,
     ) -> tuple[AssignmentGet, tuple[GameElementGet, ...] | None]:
-        return await AssignmentRepo.add_elements(
-            element_list=element_list, session=session
-        )
+        return await AssignmentRepo.add_elements(element_list=element_list, session=session)

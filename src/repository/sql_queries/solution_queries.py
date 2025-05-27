@@ -1,22 +1,22 @@
 from sqlalchemy import text
 
-
 CREATE_SOLUTION = text(
     """
     insert into solution(
-        user_login, 
+        user_login,
         assignment_id,
         answer,
         solution_status_id
     )
     values (:user_login, :assignment_id, :answer, :solution_status)
+    on conflict(user_login, assignment_id) do update set answer = :answer
     returning *
     """
 )
 
 
 GET_SOLUTION = text(
-    """ 
+    """
     select
       solution_id,
       assignment_id,
@@ -42,7 +42,7 @@ GET_SOLUTION_BY_ID = text(
       feedback,
       is_correct
     from solution
-    where solution_id = :solution_id 
+    where solution_id = :solution_id
     """
 )
 

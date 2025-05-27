@@ -80,8 +80,7 @@ async def get_assignments(
         return assignments
 
     logger.info(
-        "Fail of getting assignments for course %s. Assignments doesn't exists"
-        % course_uuid
+        "Fail of getting assignments for course %s. Assignments doesn't exists" % course_uuid
     )
     raise HTTPException(
         status_code=404,
@@ -104,10 +103,7 @@ async def create_assignment(
             assignment_in=assignment_in, session=session
         )
     except UUIDValidationException:
-        logger.info(
-            "Failed to create assignment with course uuid: %s"
-            % assignment_in.course_id
-        )
+        logger.info("Failed to create assignment with course uuid: %s" % assignment_in.course_id)
         raise HTTPException(
             status_code=400,
             detail="UUID of course validation error. UUID should be 32..36 "
@@ -148,34 +144,29 @@ async def update_assignment(
     assignment_in: AssignmentUpdate,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
-    await AssignmentRepo.update_assignment(
-        assignment_update=assignment_in, session=session
-    )
+    await AssignmentRepo.update_assignment(assignment_update=assignment_in, session=session)
 
 
 @router.post(
     "/assignment/delete/{assignment_id}",
 )
 async def delete_assignment(
-    assignment_uuid: str,
+    assignment_id: str,
     response: Response,
     request: Request,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     await only_teacher(request)
     try:
-        logger.info("Try to delete assignment with uuid %s" % assignment_uuid)
+        logger.info("Try to delete assignment with uuid %s" % assignment_id)
         assignment = await AssignmentsService.delete_assignment(
-            assignment_uuid=assignment_uuid, session=session
+            assignment_uuid=assignment_id, session=session
         )
     except SQLAlchemyError as e:
         logger.error(e)
         raise HTTPException(status_code=500, detail="Database error")
     except UUIDValidationException:
-        logger.info(
-            args="Failed to delete assignment with invalid uuid %s"
-            % assignment_uuid
-        )
+        logger.info(args="Failed to delete assignment with invalid uuid %s" % assignment_id)
         raise HTTPException(
             status_code=400,
             detail="UUID of course validation error. UUID should be 32..36 "
@@ -183,12 +174,11 @@ async def delete_assignment(
         )
     except AssignmentNotFoundException:
         logger.info(
-            "Failed to delete assignment with uuid %s. Assignment not found"
-            % assignment_uuid
+            "Failed to delete assignment with uuid %s. Assignment not found" % assignment_id
         )
         raise HTTPException(
             status_code=404,
-            detail=f"Assignment with id {assignment_uuid} not found",
+            detail=f"Assignment with id {assignment_id} not found",
         )
     except AssignmentException as e:
         logger.error(e)
@@ -199,22 +189,16 @@ async def delete_assignment(
 
     if assignment:
         response.status_code = 201
-        logger.info(
-            "Successfully deleted assignment with uuid %s" % assignment_uuid
-        )
-        return {
-            "detail": f"Assigment with id {assignment.assignment_id} successfully deleted"
-        }
+        logger.info("Successfully deleted assignment with uuid %s" % assignment_id)
+        return {"detail": f"Assigment with id {assignment.assignment_id} successfully deleted"}
 
-    logger.info("Failed to delete assignment with uuid" % assignment_uuid)
+    logger.info("Failed to delete assignment with uuid" % assignment_id)
     raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get(
     "/full_assignment/{assignment_uuid}",
-    response_model=tuple[
-        AssignmentTotalInfo, tuple[GameElementGet, ...] | None
-    ],
+    response_model=tuple[AssignmentTotalInfo, tuple[GameElementGet, ...] | None],
 )
 async def get_total_info_assignment(
     assignment_uuid: str,
@@ -236,10 +220,7 @@ async def get_total_info_assignment(
         logger.error(e)
         raise HTTPException(status_code=500, detail="Database error")
     except UUIDValidationException:
-        logger.info(
-            args="Failed to delete assignment with invalid uuid %s"
-            % assignment_uuid
-        )
+        logger.info(args="Failed to delete assignment with invalid uuid %s" % assignment_uuid)
         raise HTTPException(
             status_code=400,
             detail="UUID of course validation error. UUID should be 32..36 "
@@ -247,8 +228,7 @@ async def get_total_info_assignment(
         )
     except AssignmentNotFoundException:
         logger.info(
-            "Failed to delete assignment with uuid %s. Assignment not found"
-            % assignment_uuid
+            "Failed to delete assignment with uuid %s. Assignment not found" % assignment_uuid
         )
         raise HTTPException(
             status_code=404,

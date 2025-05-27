@@ -20,6 +20,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./AssignmentPage.css";
 
+// Base API URL from environment variables
+const API_BASE_URL = "http://127.0.0.1:8000";
+
 const AssignmentPage = () => {
   const { assignmentId } = useParams();
   const navigate = useNavigate();
@@ -59,8 +62,9 @@ const AssignmentPage = () => {
       }
 
       try {
+        // Fetch all assignments for the course
         const assignmentsResponse = await axios.get(
-          `http://127.0.0.1:8000/assignments/?course_uuid=${courseId}`,
+          `${API_BASE_URL}/assignments/?course_uuid=${courseId}`,
         );
         const allAssignments = assignmentsResponse.data;
         setAssignments(allAssignments);
@@ -70,20 +74,30 @@ const AssignmentPage = () => {
         );
         setCurrentAssignmentIndex(currentIndex);
 
+        // Fetch full assignment details
         const response = await axios.get(
-          `http://127.0.0.1:8000/full_assignment/${assignmentId}`,
+          `${API_BASE_URL}/full_assignment/${assignmentId}`,
         );
-        const [assignmentData, elementsData, actionsData] = response.data;
+        const [assignmentData, elementsData] = response.data;
+
+        // Fetch actions for the assignment
+        const actionsResponse = await axios.get(
+          `${API_BASE_URL}/actions/${assignmentId}/`,
+        );
 
         setAssignment(assignmentData);
         setElements(elementsData || []);
-        setAvailableActions(actionsData || []);
+        setAvailableActions(actionsResponse.data || []);
         setAntPosition({
           x: assignmentData.start_x,
           y: assignmentData.start_y,
         });
         setAntDirection("right");
-        setIsCycleAvailable(true);
+        setIsCycleAvailable(
+          assignmentData.is_cycle_available !== undefined
+            ? assignmentData.is_cycle_available
+            : true,
+        );
 
         setLoading(false);
       } catch (err) {
@@ -186,7 +200,6 @@ const AssignmentPage = () => {
 
   const handleRunSolution = async () => {
     if (isAnimating || solution.length === 0) return;
-    console.log(extractCommandIds(solution));
     setSolutionError("");
     setIsAnimating(true);
     setAntPosition({ x: assignment.start_x, y: assignment.start_y });
@@ -219,13 +232,10 @@ const AssignmentPage = () => {
           for (const subCommand of command.commands) {
             nextX += subCommand.x_changes;
             nextY -= subCommand.y_changes;
-            if (subCommand.name.includes("right")) nextDirection = "right";
-            else if (subCommand.name.includes("left")) nextDirection = "left";
-            else if (subCommand.name.includes("up")) {
-              nextDirection = "up";
-            } else if (subCommand.name.includes("down")) {
-              nextDirection = "down";
-            }
+            if (subCommand.name.includes("вправо")) nextDirection = "right";
+            else if (subCommand.name.includes("влево")) nextDirection = "left";
+            else if (subCommand.name.includes("вверх")) nextDirection = "up";
+            else if (subCommand.name.includes("вниз")) nextDirection = "down";
 
             if (
               nextX < 1 ||
@@ -275,7 +285,6 @@ const AssignmentPage = () => {
               setIsAnimating(false);
               return;
             }
-
             await new Promise((resolve) => setTimeout(resolve, 470));
           }
         }
@@ -384,9 +393,7 @@ const AssignmentPage = () => {
     setGeneralError(null);
 
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/assignment/?assignment_uuid=${assignmentId}`,
-      );
+      await axios.post(`${API_BASE_URL}/assignment/delete/${assignmentId}`);
       navigate(`/course/${courseId}`);
     } catch (err) {
       console.error("Ошибка при удалении задания:", err);
@@ -408,23 +415,14 @@ const AssignmentPage = () => {
       user_login: user.user_login,
     };
 
-    console.log(solutionData);
+    const response = await axios.post(
+      `${API_BASE_URL}/create_solution/`,
+      solutionData,
+    );
+    const solutionId = response.data.solution_id;
+    console.log(solutionId);
 
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/create_solution/",
-        solutionData,
-      );
-      setSolutionError("Решение успешно отправлено!");
-      console.log("Решение отправлено:", response.data);
-    } catch (err) {
-      console.error("Ошибка при отправке решения:", err);
-      const message =
-        err.response?.data?.detail ||
-        err.message ||
-        "Произошла неизвестная ошибка.";
-      setSolutionError(`Не удалось отправить решение: ${message}`);
-    }
+    setSolutionError("Решение успешно отправлено!");
   };
 
   if (loading) return <div className="loading">Загрузка задания...</div>;
@@ -452,7 +450,7 @@ const AssignmentPage = () => {
       <h2>{assignment.name}</h2>
       {solutionError && (
         <div
-          className={`solution-message ${solutionError === "Успех!" || solutionError === "Решение успешно отправлено!" ? "success" : "error"}`}
+          className={`solution-message ${solutionError.includes("Успех") || solutionError.includes("успешно отправлено") ? "success" : "error"}`}
         >
           {solutionError}
         </div>
