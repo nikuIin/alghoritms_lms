@@ -155,9 +155,9 @@ const SolutionReviewPage = () => {
       try {
         const [assignmentDetailsResponse, solutionResponse] = await Promise.all(
           [
-            axios.get(`http://127.0.0.1:8000/full_assignment/${assignmentId}`),
+            axios.get(`http://127.0.0.1/api/full_assignment/${assignmentId}`),
             axios.get(
-              `http://127.0.0.1:8000/solution/?assignment_id=${assignmentId}&login=${userLogin}`,
+              `http://127.0.0.1/api/solution/?assignment_id=${assignmentId}&login=${userLogin}`,
             ),
           ],
         );
@@ -218,7 +218,7 @@ const SolutionReviewPage = () => {
         // 3. Загрузка и парсинг определений действий (actions)
         //    Нужно только если в /full_assignment/ их не было или они там неполные
         const actionsResponse = await axios.get(
-          `http://127.0.0.1:8000/actions/${assignmentId}/`,
+          `http://127.0.0.1/api/actions/${assignmentId}/`,
         );
         const parsedActions = parseActionsResponse(actionsResponse.data);
         setAvailableActions(parsedActions); // Сохраняем доступные действия (может пригодиться)
@@ -518,10 +518,10 @@ const SolutionReviewPage = () => {
 
     try {
       await axios.patch(
-        `http://127.0.0.1:8000/update_solution/?assignment_id=${solutionData.assignment_id}&user_login=${solutionData.user_login}`, // Используем ID решения
+        `http://127.0.0.1/api/update_solution/?assignment_id=${solutionData.assignment_id}&user_login=${solutionData.user_login}`, // Используем ID решения
         reviewPayload, // Отправляем сформированный payload
       );
-      const grade_create_url = "http://127.0.0.1:8000/grade/";
+      const grade_create_url = "http://127.0.0.1/api/grade/";
       const grade_request_body = {
         grade: reviewScore,
         user_login: solutionData.user_login,

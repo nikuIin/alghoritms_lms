@@ -18,11 +18,11 @@ const AddUsersToCoursePopup = ({ courseId, onClose, onUsersAdded }) => {
 
             try {
                 // 1. Fetch all users (replace with your actual endpoint)
-                const allUsersResponse = await axios.get('http://127.0.0.1:8000/users_logins');
+                const allUsersResponse = await axios.get('http://127.0.0.1/api/users_logins');
                 setAllUsers(allUsersResponse.data);
 
                 // 2. Fetch users already in the course
-                const usersInCourseResponse = await axios.get(`http://127.0.0.1:8000/users_from_course/${courseId}`);
+                const usersInCourseResponse = await axios.get(`http://127.0.0.1/api/users_from_course/${courseId}`);
                 setUsersInCourse(usersInCourseResponse.data);
 
 
@@ -57,7 +57,7 @@ const AddUsersToCoursePopup = ({ courseId, onClose, onUsersAdded }) => {
                 course_uuid: courseId,
             };
 
-            await axios.post('http://127.0.0.1:8000/register_users/', payload);
+            await axios.post('http://127.0.0.1/api/register_users/', payload);
 
 
             setLoading(false);

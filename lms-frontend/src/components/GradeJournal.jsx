@@ -6,7 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import './GradeJournal.css'; 
 
-const API_BASE_URL = 'http://127.0.0.1:8000'; 
+const API_BASE_URL = 'http://127.0.0.1/api'; 
 
 const GradeJournal = () => {
     const { user } = useAuth(); // Получаем пользователя и его роль
