@@ -1,13 +1,15 @@
 from node:24-alpine
 
-workdir /lms-frontend
+workdir /app
 
-copy package.json package-lock.json .
+copy package.json package-lock.json vite.config.js .
 
 run npm install
 
-copy dist .
+run mkdir /app/dist
 
-expose 4173
+copy dist /app/dist
+
+expose 3000
 
 entrypoint ["npm", "run", "preview"]
