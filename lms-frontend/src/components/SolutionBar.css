@@ -1,41 +1,141 @@
-/* src/components/SolutionBar.css */
+/* SolutionBar.css */
 
 .solution-bar {
-    border: 1px dashed #999;
-    padding: 10px;
-    min-height: 100px; /* Adjust as needed */
-    background-color: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    background: var(--background);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 }
 
 .solution-bar h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.solution-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .solution-item {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 5px 10px;
-    margin: 5px;
-    border-radius: 3px;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.solution-item.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cycle-item {
+    background-color: #e9ecef;
+    padding: 1rem;
+}
+
+.cycle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.cycle-header span {
+    font-weight: 500;
+    color: var(--success-color);
+}
+
+.cycle-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.cycle-controls label {
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.cycle-controls input,
+.cycle-controls select {
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+}
+
+.cycle-commands {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.cycle-command {
+    display: block;
     justify-content: space-between;
-    width: 80%; /* Adjust as needed */
-}
-
-.solution-item button {
-    background-color: #e74c3c; /* Reddish color for remove button */
+    align-items: center;
+    padding: 0.5rem;
     color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 3px;
-    cursor: pointer;
+    border-radius: var(--border-radius);
 }
 
-.solution-item button:hover {
-    background-color: #c0392b;
+.command-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: #fff;
+}
+
+.remove-button {
+    padding: 0.5rem 1rem;
+    background-color: var(--error-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.cycle-command .remove-button {
+    display: none;
+}
+
+.remove-button:hover:not(:disabled) {
+    background-color: #c82333;
+}
+
+.remove-button:disabled {
+    background-color: var(--button-disabled-bg);
+    cursor: not-allowed;
+}
+
+.empty-message {
+    font-style: italic;
+    color: var(--text);
+    text-align: center;
+    padding: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .solution-bar {
+        padding: 0.75rem;
+    }
+
+    .solution-item {
+        padding: 0.5rem;
+    }
+
+    .cycle-controls {
+        flex-direction: column;
+    }
 }

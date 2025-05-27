@@ -20,7 +20,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./AssignmentPage.css";
 
-// Base API URL from environment variables
+// Base API URL
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 const AssignmentPage = () => {
@@ -62,7 +62,7 @@ const AssignmentPage = () => {
       }
 
       try {
-        // Fetch all assignments for the course
+        // Загрузка всех заданий курса
         const assignmentsResponse = await axios.get(
           `${API_BASE_URL}/assignments/?course_uuid=${courseId}`,
         );
@@ -74,20 +74,29 @@ const AssignmentPage = () => {
         );
         setCurrentAssignmentIndex(currentIndex);
 
-        // Fetch full assignment details
+        // Загрузка полного задания
         const response = await axios.get(
           `${API_BASE_URL}/full_assignment/${assignmentId}`,
         );
         const [assignmentData, elementsData] = response.data;
 
-        // Fetch actions for the assignment
+        // Загрузка действий
         const actionsResponse = await axios.get(
           `${API_BASE_URL}/actions/${assignmentId}/`,
+        );
+        // Форматирование действий из массива [key, value, ...]
+        const formattedActions = actionsResponse.data[0].actions.map(
+          (action) => ({
+            id: action[1], // action_id
+            name: action[3], // name (напр., "Шаг вправо")
+            x_changes: action[5], // x_changes
+            y_changes: action[7], // y_changes
+          }),
         );
 
         setAssignment(assignmentData);
         setElements(elementsData || []);
-        setAvailableActions(actionsResponse.data || []);
+        setAvailableActions(formattedActions);
         setAntPosition({
           x: assignmentData.start_x,
           y: assignmentData.start_y,
@@ -231,11 +240,13 @@ const AssignmentPage = () => {
         for (let i = 0; i < command.iterations; i++) {
           for (const subCommand of command.commands) {
             nextX += subCommand.x_changes;
-            nextY -= subCommand.y_changes;
+            nextY -= subCommand.y_changes; // Используем y_changes напрямую
             if (subCommand.name.includes("вправо")) nextDirection = "right";
             else if (subCommand.name.includes("влево")) nextDirection = "left";
             else if (subCommand.name.includes("вверх")) nextDirection = "up";
             else if (subCommand.name.includes("вниз")) nextDirection = "down";
+            else if (subCommand.name.includes("Прыжок"))
+              nextDirection = currentDirection;
 
             if (
               nextX < 1 ||
@@ -295,6 +306,8 @@ const AssignmentPage = () => {
         else if (command.name.includes("влево")) nextDirection = "left";
         else if (command.name.includes("вверх")) nextDirection = "up";
         else if (command.name.includes("вниз")) nextDirection = "down";
+        else if (command.name.includes("Прыжок"))
+          nextDirection = currentDirection;
 
         if (
           nextX < 1 ||
@@ -415,14 +428,22 @@ const AssignmentPage = () => {
       user_login: user.user_login,
     };
 
-    const response = await axios.post(
-      `${API_BASE_URL}/create_solution/`,
-      solutionData,
-    );
-    const solutionId = response.data.solution_id;
-    console.log(solutionId);
-
-    setSolutionError("Решение успешно отправлено!");
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/create_solution/`,
+        solutionData,
+      );
+      const solutionId = response.data.solution_id;
+      console.log(solutionId);
+      setSolutionError("Решение успешно отправлено!");
+    } catch (err) {
+      console.error("Ошибка при отправке решения:", err);
+      const message =
+        err.response?.data?.detail ||
+        err.message ||
+        "Произошла неизвестная ошибка.";
+      setSolutionError(`Не удалось отправить решение: ${message}`);
+    }
   };
 
   if (loading) return <div className="loading">Загрузка задания...</div>;
@@ -481,14 +502,14 @@ const AssignmentPage = () => {
         </button>
         {user && user.role_id === 2 && (
           <>
-            <button
+            {/* <button
               onClick={() => navigate(`/update-assignment/${assignmentId}`)}
               className="edit-button"
               title="Редактировать задание"
               disabled={isDeleting || isAnimating}
             >
               <FontAwesomeIcon icon={faEdit} /> Редактировать
-            </button>
+            </button> */}
             <button
               onClick={handleDeleteCurrentAssignment}
               className="delete-button"
@@ -553,12 +574,10 @@ const AssignmentPage = () => {
               onCommandClick={handleCommandClick}
               disabled={isAnimating}
               isCycleAvailable={isCycleAvailable}
-              onAddToCycle={handleAddToCycle}
-              solution={solution}
-              onCycleIterationsChange={handleCycleIterationsChange}
             />
             <SolutionBar
               solution={solution}
+              commands={availableActions}
               onSolutionRemove={handleSolutionRemove}
               disabled={isAnimating}
               onAddToCycle={handleAddToCycle}
