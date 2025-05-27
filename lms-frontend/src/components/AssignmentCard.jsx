@@ -1,22 +1,17 @@
-// src/components/AssignmentCard.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './AssignmentCard.css';
+import React from "react";
+import { Link } from "react-router-dom";
+import "./AssignmentCard.css";
 
-const AssignmentCard = ({ assignment, courseId }) => {
-    return (
-        <Link
-            to={`/assignment/${assignment.assignment_id}?course_id=${courseId}`}
-            className="assignment-card-link"
-        >
-            <div className="assignment-card">
-                <h4>{assignment.name}</h4>
-                <p>Assignment ID: {assignment.assignment_id}</p>
-                <p>Type: {assignment.assignment_type_id}</p>
-                <p>Status: {assignment.status_id}</p>
-            </div>
-        </Link>
-    );
+const AssignmentCard = ({ courseId, assignment }) => {
+  return (
+    <Link
+      to={`/assignment/${assignment.assignment_id}?course_id=${courseId}`}
+      className="assignment-card"
+    >
+      <h3>{assignment.name}</h3>
+      <p className="description">{assignment.description || "Без описания"}</p>
+    </Link>
+  );
 };
 
 export default AssignmentCard;

@@ -1,19 +1,213 @@
-/* src/components/CoursesPage.css */
+/* Color palette aligned with AssignmentPage */
+:root {
+    --primary: #4a90e2; /* Soft blue */
+    --secondary: #50c878; /* Soft green */
+    --accent: #f7b731; /* Warm yellow */
+    --error: #ff6b6b; /* Soft red */
+    --background: #f9fafb; /* Light gray */
+    --card-bg: #ffffff;
+    --text: #2d3748;
+    --border: #e2e8f0;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #1a202c;
+        --card-bg: #2d3748;
+        --text: #e2e8f0;
+        --border: #4a5568;
+    }
+}
+
 .courses-page {
-    padding: 20px;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background: var(--background);
+    border-radius: 12px;
+    min-height: calc(100vh - 4rem);
+    font-family: "Inter", sans-serif;
 }
 
-.courses-list {
-    list-style: none;
-    padding: 0;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.course-item {
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
-    padding: 10px;
+h1 {
+    font-size: 2rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin: 0;
 }
 
-.course-item h3 {
-    margin-top: 0;
+.add-course-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--secondary);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.add-course-button:hover {
+    background: #3ab060;
+    transform: translateY(-2px);
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.course-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: var(--text);
+    transition: var(--transition);
+    animation: fadeIn 0.5s ease-in;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.course-card h3 {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin: 0 0 0.5rem;
+}
+
+.description {
+    font-size: 1rem;
+    color: var(--text);
+    margin: 0 0 1rem;
+    opacity: 0.9;
+}
+
+.owner {
+    font-size: 0.9rem;
+    color: var(--text);
+    opacity: 0.7;
+    margin: 0;
+}
+
+.no-courses {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.25rem;
+    color: var(--text);
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+    color: var(--text);
+}
+
+.spinner {
+    border: 4px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+.loading-container p {
+    margin-top: 1rem;
+    font-size: 1.25rem;
+}
+
+.error-container {
+    text-align: center;
+    padding: 2rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    color: var(--error);
+    font-size: 1.25rem;
+}
+
+.error-container p {
+    margin-bottom: 1rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .courses-page {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .course-card {
+        padding: 1rem;
+    }
+
+    .add-course-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .course-card h3 {
+        font-size: 1.25rem;
+    }
+
+    .description {
+        font-size: 0.9rem;
+    }
+
+    .owner {
+        font-size: 0.8rem;
+    }
 }
