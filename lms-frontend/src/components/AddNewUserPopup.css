@@ -12,8 +12,9 @@
     z-index: 1000;
 }
 
-.add_user_form{
+.add_user_form {
     gap: 0;
+    color: black;
 }
 
 .add-new-user-popup .popup-content {
@@ -40,7 +41,6 @@
 .add-new-user-popup label {
     display: block;
     font-weight: bold;
-    margin-bottom: 5px;
 }
 
 .add-new-user-popup input[type="text"],
@@ -60,7 +60,7 @@
     justify-content: flex-end;
 }
 
-a:hover{
+a:hover {
     cursor: pointer;
 }
 

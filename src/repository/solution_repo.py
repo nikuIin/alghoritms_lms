@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -103,6 +104,17 @@ class SolutionRepo:
         solution = SolutionGet(**result)
         logger.info("Updated solution (new data): %s" % solution)
         return solution
+
+    @staticmethod
+    async def get_solution_for_review(
+        session: AsyncSession,
+    ):
+        async with session:
+            result = await session.execute(
+                text("select user_login, assignment_id from solution where check_at is null")
+            )
+        result = result.mappings().fetchall()
+        return result
 
     @staticmethod
     async def get_action(

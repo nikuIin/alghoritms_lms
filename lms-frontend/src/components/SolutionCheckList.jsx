@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "./SolutionCheckList.css"; // Создадим файл со стилями
 
 const API_BASE_URL = "http://127.0.0.1:8000";
-const SOLUTIONS_URL = `${API_BASE_URL}/solutions_for_check/`;
+const SOLUTIONS_URL = `${API_BASE_URL}/solution_for_review/`;
 const ASSIGNMENT_NAME_URL = (id) =>
-  `${API_BASE_URL}/assignemnt_name/?assignemnt_id=${id}`;
+  `${API_BASE_URL}/assignment_name/?assignment_id=${id}`;
 
 // Компонент для отображения одной карточки решения
 function SolutionCard({ assignmentId, assignmentName, userLogin }) {

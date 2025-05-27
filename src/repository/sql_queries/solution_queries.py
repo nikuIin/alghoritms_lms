@@ -9,7 +9,7 @@ CREATE_SOLUTION = text(
         solution_status_id
     )
     values (:user_login, :assignment_id, :answer, :solution_status)
-    on conflict(user_login, assignment_id) do update set answer = :answer
+    on conflict(user_login, assignment_id) do update set answer = :answer, check_at = null
     returning *
     """
 )

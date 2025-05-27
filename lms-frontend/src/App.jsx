@@ -15,6 +15,8 @@ import CreateCoursePage from "./components/CreateCoursePage.jsx";
 import CourseDetailsPage from "./components/CourseDetailsPage.jsx";
 import AssignmentPage from "./components/AssignmentPage.jsx";
 import CreateAssignmentPage from "./components/CreateAssignmentPage.jsx";
+import SolutionCheckList from "./components/SolutionCheckList.jsx";
+import SolutionReviewPage from "./components/SolutionReviewPage.jsx";
 
 function App() {
   return (
@@ -73,6 +75,26 @@ function AppContent() {
               <CreateAssignmentPage />
             ) : (
               <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/solutions-for-check"
+          element={
+            user && user.role_id === 2 ? (
+              <SolutionCheckList />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/review/:assignmentId/:userLogin"
+          element={
+            user && user.role_id === 2 ? (
+              <SolutionReviewPage />
+            ) : (
+              <Navigate to="/login" />
             )
           }
         />

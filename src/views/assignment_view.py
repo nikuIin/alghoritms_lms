@@ -6,6 +6,7 @@ from typing import List
 # for auth working
 from authx import AuthX
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import Response
@@ -145,6 +146,20 @@ async def update_assignment(
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     await AssignmentRepo.update_assignment(assignment_update=assignment_in, session=session)
+
+
+@router.get("/assignment_name/")
+async def get_assignment_name(
+    assignment_id: str, session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    async with session:
+        result = await session.execute(
+            text(
+                "select name from assignment where assignment_id = :assignment_id",
+            ),
+            params={"assignment_id": assignment_id},
+        )
+        return result.mappings().fetchone()
 
 
 @router.post(

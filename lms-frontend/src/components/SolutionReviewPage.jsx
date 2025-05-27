@@ -338,12 +338,13 @@ const SolutionReviewPage = () => {
       let nextDirection = currentDirection; // Направление по умолчанию старое
 
       // Определение направления по имени команды (простое, можно улучшить)
-      if (command.name?.toLowerCase().includes("right"))
+      if (command.name?.toLowerCase().includes("вправо"))
         nextDirection = "right";
-      else if (command.name?.toLowerCase().includes("left"))
+      else if (command.name?.toLowerCase().includes("влево"))
         nextDirection = "left";
-      else if (command.name?.toLowerCase().includes("up")) nextDirection = "up";
-      else if (command.name?.toLowerCase().includes("down"))
+      else if (command.name?.toLowerCase().includes("вверх"))
+        nextDirection = "up";
+      else if (command.name?.toLowerCase().includes("вниз"))
         nextDirection = "down";
       // Можно добавить явные проверки на command.turn_direction или другие поля, если они есть
 
@@ -520,12 +521,12 @@ const SolutionReviewPage = () => {
         `http://127.0.0.1:8000/update_solution/?assignment_id=${solutionData.assignment_id}&user_login=${solutionData.user_login}`, // Используем ID решения
         reviewPayload, // Отправляем сформированный payload
       );
-      const grade_create_url = 'http://127.0.0.1:8000/grade/';
+      const grade_create_url = "http://127.0.0.1:8000/grade/";
       const grade_request_body = {
         grade: reviewScore,
         user_login: solutionData.user_login,
-        assignment_id: solutionData.assignment_id
-      }
+        assignment_id: solutionData.assignment_id,
+      };
 
       await axios.post(grade_create_url, grade_request_body);
       // --- КОНЕЦ ИЗМЕНЕНИЙ В API ВЫЗОВЕ ---
