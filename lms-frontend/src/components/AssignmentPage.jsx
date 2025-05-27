@@ -53,7 +53,7 @@ const AssignmentPage = () => {
       setIsAnimating(false);
 
       if (!courseId) {
-        setGeneralError("Course ID is missing from the URL.");
+        setGeneralError("Идентификатор курса отсутствует в URL.");
         setLoading(false);
         return;
       }
@@ -83,20 +83,16 @@ const AssignmentPage = () => {
           y: assignmentData.start_y,
         });
         setAntDirection("right");
-        setIsCycleAvailable(
-          assignmentData.is_cycle_available !== undefined
-            ? assignmentData.is_cycle_available
-            : true,
-        );
+        setIsCycleAvailable(true);
 
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching assignment data:", err);
+        console.error("Ошибка при загрузке данных задания:", err);
         const message =
           err.response?.data?.detail ||
           err.message ||
-          "An unknown error occurred.";
-        setGeneralError(`Failed to load assignment: ${message}`);
+          "Произошла неизвестная ошибка.";
+        setGeneralError(`Не удалось загрузить задание: ${message}`);
         setError(message);
         setLoading(false);
       }
@@ -122,7 +118,7 @@ const AssignmentPage = () => {
     const ids = [];
     if (!Array.isArray(commandsArray)) {
       console.error(
-        "Input to extractCommandIds is not an array:",
+        "Входной массив для extractCommandIds не является массивом:",
         commandsArray,
       );
       return [];
@@ -142,7 +138,7 @@ const AssignmentPage = () => {
               ids.push(commandInCycle.id);
             } else {
               console.warn(
-                "Skipping unexpected item within cycle:",
+                "Пропущен неожиданный элемент в цикле:",
                 commandInCycle,
               );
             }
@@ -151,7 +147,7 @@ const AssignmentPage = () => {
       } else if (item && typeof item.id === "number") {
         ids.push(item.id);
       } else {
-        console.warn("Skipping unexpected item in input array:", item);
+        console.warn("Пропущен неожиданный элемент во входном массиве:", item);
       }
     });
     return ids;
@@ -205,9 +201,9 @@ const AssignmentPage = () => {
     const executeStep = async () => {
       if (commandIndex >= solution.length) {
         if (currentX === assignment.end_x && currentY === assignment.end_y) {
-          setSolutionError("Success!");
+          setSolutionError("Успех!");
         } else {
-          setSolutionError("Ant did not reach the target.");
+          setSolutionError("Муравей не достиг цели.");
         }
         setIsAnimating(false);
         return;
@@ -237,7 +233,7 @@ const AssignmentPage = () => {
               nextY < 1 ||
               nextY > assignment.field_height
             ) {
-              setSolutionError("The ant went out of bounds!");
+              setSolutionError("Муравей вышел за пределы поля!");
               setIsAnimating(false);
               setAntPosition({ x: currentX, y: currentY });
               return;
@@ -250,7 +246,7 @@ const AssignmentPage = () => {
                 element.pos_y === nextY,
             );
             if (isWallCollision) {
-              setSolutionError("The ant hit a wall!");
+              setSolutionError("Муравей столкнулся со стеной!");
               setIsAnimating(false);
               setAntPosition({ x: currentX, y: currentY });
               return;
@@ -258,7 +254,7 @@ const AssignmentPage = () => {
 
             const positionKey = `${nextX},${nextY}`;
             if (visitedPositions.has(positionKey)) {
-              setSolutionError("The ant is stuck in a loop!");
+              setSolutionError("Муравей застрял в цикле!");
               setIsAnimating(false);
               setAntPosition({ x: currentX, y: currentY });
               return;
@@ -275,7 +271,7 @@ const AssignmentPage = () => {
               currentX === assignment.end_x &&
               currentY === assignment.end_y
             ) {
-              setSolutionError("Success!");
+              setSolutionError("Успех!");
               setIsAnimating(false);
               return;
             }
@@ -286,10 +282,10 @@ const AssignmentPage = () => {
       } else {
         nextX += command.x_changes;
         nextY -= command.y_changes;
-        if (command.name.includes("right")) nextDirection = "right";
-        else if (command.name.includes("left")) nextDirection = "left";
-        else if (command.name.includes("up")) nextDirection = "up";
-        else if (command.name.includes("down")) nextDirection = "down";
+        if (command.name.includes("вправо")) nextDirection = "right";
+        else if (command.name.includes("влево")) nextDirection = "left";
+        else if (command.name.includes("вверх")) nextDirection = "up";
+        else if (command.name.includes("вниз")) nextDirection = "down";
 
         if (
           nextX < 1 ||
@@ -297,7 +293,7 @@ const AssignmentPage = () => {
           nextY < 1 ||
           nextY > assignment.field_height
         ) {
-          setSolutionError("The ant went out of bounds!");
+          setSolutionError("Муравей вышел за пределы поля!");
           setIsAnimating(false);
           setAntPosition({ x: currentX, y: currentY });
           return;
@@ -310,7 +306,7 @@ const AssignmentPage = () => {
             element.pos_y === nextY,
         );
         if (isWallCollision) {
-          setSolutionError("The ant hit a wall!");
+          setSolutionError("Муравей столкнулся со стеной!");
           setIsAnimating(false);
           setAntPosition({ x: currentX, y: currentY });
           return;
@@ -318,7 +314,7 @@ const AssignmentPage = () => {
 
         const positionKey = `${nextX},${nextY}`;
         if (visitedPositions.has(positionKey)) {
-          setSolutionError("The ant is stuck in a loop!");
+          setSolutionError("Муравей застрял в цикле!");
           setIsAnimating(false);
           setAntPosition({ x: currentX, y: currentY });
           return;
@@ -332,7 +328,7 @@ const AssignmentPage = () => {
         setAntDirection(nextDirection);
 
         if (currentX === assignment.end_x && currentY === assignment.end_y) {
-          setSolutionError("Success!");
+          setSolutionError("Успех!");
           setIsAnimating(false);
           return;
         }
@@ -378,7 +374,7 @@ const AssignmentPage = () => {
   const handleDeleteCurrentAssignment = async () => {
     if (
       !window.confirm(
-        `Are you sure you want to delete assignment "${assignment?.name || assignmentId}"? This action cannot be undone.`,
+        `Вы уверены, что хотите удалить задание "${assignment?.name || assignmentId}"? Это действие нельзя отменить.`,
       )
     ) {
       return;
@@ -393,12 +389,12 @@ const AssignmentPage = () => {
       );
       navigate(`/course/${courseId}`);
     } catch (err) {
-      console.error("Error deleting current assignment:", err);
+      console.error("Ошибка при удалении задания:", err);
       const message =
         err.response?.data?.detail ||
         err.message ||
-        "An unknown error occurred during deletion.";
-      setGeneralError(`Failed to delete assignment: ${message}`);
+        "Произошла неизвестная ошибка при удалении.";
+      setGeneralError(`Не удалось удалить задание: ${message}`);
       setIsDeleting(false);
     }
   };
@@ -419,30 +415,30 @@ const AssignmentPage = () => {
         "http://127.0.0.1:8000/create_solution/",
         solutionData,
       );
-      setSolutionError("Solution submitted successfully!");
-      console.log("Solution submitted:", response.data);
+      setSolutionError("Решение успешно отправлено!");
+      console.log("Решение отправлено:", response.data);
     } catch (err) {
-      console.error("Error submitting solution:", err);
+      console.error("Ошибка при отправке решения:", err);
       const message =
         err.response?.data?.detail ||
         err.message ||
-        "An unknown error occurred.";
-      setSolutionError(`Failed to submit solution: ${message}`);
+        "Произошла неизвестная ошибка.";
+      setSolutionError(`Не удалось отправить решение: ${message}`);
     }
   };
 
-  if (loading) return <div className="loading">Loading assignment...</div>;
+  if (loading) return <div className="loading">Загрузка задания...</div>;
   if (generalError)
     return (
       <div className="error">
-        {generalError} <Link to={`/course/${courseId}`}>Go back to course</Link>
+        {generalError} <Link to={`/course/${courseId}`}>Вернуться к курсу</Link>
       </div>
     );
   if (!assignment)
     return (
       <div className="error">
-        Assignment data could not be loaded.{" "}
-        <Link to={`/course/${courseId}`}>Go back to course</Link>
+        Данные задания не удалось загрузить.{" "}
+        <Link to={`/course/${courseId}`}>Вернуться к курсу</Link>
       </div>
     );
 
@@ -456,58 +452,58 @@ const AssignmentPage = () => {
       <h2>{assignment.name}</h2>
       {solutionError && (
         <div
-          className={`solution-message ${solutionError === "Success!" || solutionError === "Solution submitted successfully!" ? "success" : "error"}`}
+          className={`solution-message ${solutionError === "Успех!" || solutionError === "Решение успешно отправлено!" ? "success" : "error"}`}
         >
           {solutionError}
         </div>
       )}
-      {isDeleting && <div className="loading">Deleting assignment...</div>}
+      {isDeleting && <div className="loading">Удаление задания...</div>}
 
       <div className="top-controls">
         <button
           onClick={() => navigate(`/course/${courseId}`)}
-          title="Back to Course"
+          title="Вернуться к курсу"
           disabled={isDeleting || isAnimating}
         >
-          <FontAwesomeIcon icon={faHome} /> Course
+          <FontAwesomeIcon icon={faHome} /> Курс
         </button>
         <button
           onClick={handlePreviousAssignment}
           disabled={!canGoPrevious || isDeleting || isAnimating}
-          title="Previous Assignment"
+          title="Предыдущее задание"
         >
-          <FontAwesomeIcon icon={faArrowLeft} /> Prev
+          <FontAwesomeIcon icon={faArrowLeft} /> Назад
         </button>
         <button
           onClick={handleNextAssignment}
           disabled={!canGoNext || isDeleting || isAnimating}
-          title="Next Assignment"
+          title="Следующее задание"
         >
-          Next <FontAwesomeIcon icon={faArrowRight} />
+          Вперед <FontAwesomeIcon icon={faArrowRight} />
         </button>
         {user && user.role_id === 2 && (
           <>
             <button
               onClick={() => navigate(`/update-assignment/${assignmentId}`)}
               className="edit-button"
-              title="Edit Assignment"
+              title="Редактировать задание"
               disabled={isDeleting || isAnimating}
             >
-              <FontAwesomeIcon icon={faEdit} /> Edit
+              <FontAwesomeIcon icon={faEdit} /> Редактировать
             </button>
             <button
               onClick={handleDeleteCurrentAssignment}
               className="delete-button"
-              title="Delete Assignment"
+              title="Удалить задание"
               disabled={isDeleting || isAnimating}
             >
-              <FontAwesomeIcon icon={faTrash} /> Delete
+              <FontAwesomeIcon icon={faTrash} /> Удалить
             </button>
           </>
         )}
       </div>
       <p className="assignment-description">
-        {assignment.description || "No description provided."}
+        {assignment.description || "Описание отсутствует."}
       </p>
       <div className="main-content-area">
         <div className="chessboard-container">
@@ -524,31 +520,31 @@ const AssignmentPage = () => {
             <button
               onClick={handleRunSolution}
               disabled={isAnimating || solution.length === 0}
-              title="Run Solution"
+              title="Запустить решение"
             >
               <FontAwesomeIcon icon={isAnimating ? faStop : faPlay} />{" "}
-              {isAnimating ? "Running..." : "Run"}
+              {isAnimating ? "Выполняется..." : "Запустить"}
             </button>
             <button
               onClick={handleRestart}
               disabled={isAnimating}
-              title="Clear Solution and Reset Ant"
+              title="Сбросить решение и положение муравья"
             >
-              <FontAwesomeIcon icon={faRedo} /> Reset All
+              <FontAwesomeIcon icon={faRedo} /> Сбросить все
             </button>
             <button
               onClick={handleClearAll}
               disabled={isAnimating || solution.length === 0}
-              title="Clear Solution Steps"
+              title="Очистить шаги решения"
             >
-              <FontAwesomeIcon icon={faBroom} /> Clear Steps
+              <FontAwesomeIcon icon={faBroom} /> Очистить шаги
             </button>
             <button
               onClick={handleSubmitSolution}
               disabled={isAnimating || solution.length === 0}
-              title="Submit Solution"
+              title="Отправить решение"
             >
-              <FontAwesomeIcon icon={faPaperPlane} /> Submit Solution
+              <FontAwesomeIcon icon={faPaperPlane} /> Отправить решение
             </button>
           </div>
         </div>
