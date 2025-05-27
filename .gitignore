@@ -12,6 +12,8 @@ env
 .env
 !.gitignore
 
+__pycache__
+
 node_modules
 dist
 dist-ssr

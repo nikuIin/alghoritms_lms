@@ -1,0 +1,56 @@
+services:
+  backend:
+    image: python-lms-server:1.0
+    build:
+      context: ./src/
+    container_name: backend-cnt 
+    env_file:
+      - ./src/.env
+    ports:
+      - "8000:8000"
+    networks:
+      - lms-network
+  frontend:
+    image: npm-lms-server:1.0
+    build:
+      context: ./lms-frontend/
+    container_name: npm-lms-server-1
+    ports:
+      - "3000:3000"
+    networks:
+      - lms-network
+  db:
+    image: postgres:17
+    container_name: lms-postgres
+    env_file:
+      ./src/.env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USER} -d $${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    volumes:
+      - pg_lms_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - lms-network
+  nginx:
+    image: lms-nginx:1.0
+    build:
+      context: nginx/
+    ports:
+      - 80:80
+    networks:
+      - lms-network
+
+volumes:
+  pg_lms_data:
+
+networks:
+  lms-network:
