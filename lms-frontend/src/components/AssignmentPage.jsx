@@ -42,6 +42,9 @@ const AssignmentPage = () => {
   const [currentAssignmentIndex, setCurrentAssignmentIndex] = useState(-1);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCycleAvailable, setIsCycleAvailable] = useState(true);
+  const [feedback, setFeedback] = useState(null); // Обратная связь от учителя
+  const [grade, setGrade] = useState(null); // Оценка
+  const [attemptNumber, setAttemptNumber] = useState(1); // Номер попытки
 
   const courseId = new URLSearchParams(window.location.search).get("course_id");
 
@@ -54,6 +57,9 @@ const AssignmentPage = () => {
       setSolutionError("");
       setSolution([]);
       setIsAnimating(false);
+      setFeedback(null);
+      setGrade(null);
+      setAttemptNumber(1);
 
       if (!courseId) {
         setGeneralError("Идентификатор курса отсутствует в URL.");
@@ -108,6 +114,43 @@ const AssignmentPage = () => {
             : true,
         );
 
+        // Загрузка существующего решения
+        try {
+          const solutionResponse = await axios.get(
+            `${API_BASE_URL}/solution/?assignment_id=${assignmentId}&login=${user.user_login}`,
+          );
+          const solutionData = solutionResponse.data;
+          if (solutionData && Array.isArray(solutionData.answer)) {
+            // Преобразование answer в solution
+            const actionMap = new Map(
+              formattedActions.map((action) => [action.id, action]),
+            );
+            const loadedSolution = solutionData.answer
+              .map((id) => actionMap.get(id))
+              .filter((action) => action !== undefined);
+            setSolution(loadedSolution);
+            setAttemptNumber(solutionData.attempt_number + 1); // Увеличиваем попытку
+            // Проверяем, проверено ли решение
+            if (solutionData.check_at) {
+              setFeedback(solutionData.feedback);
+              // Загрузка оценки
+              try {
+                const gradeResponse = await axios.get(
+                  `${API_BASE_URL}/grade/?assignment_id=${assignmentId}&login=${user.user_login}`,
+                );
+                setGrade(gradeResponse.data);
+              } catch (gradeErr) {
+                console.warn("Оценка не найдена:", gradeErr);
+              }
+            }
+          }
+        } catch (solutionErr) {
+          if (solutionErr.response?.status !== 404) {
+            console.error("Ошибка при загрузке решения:", solutionErr);
+          }
+          // 404 означает, что решения нет, это нормально
+        }
+
         setLoading(false);
       } catch (err) {
         console.error("Ошибка при загрузке данных задания:", err);
@@ -121,8 +164,10 @@ const AssignmentPage = () => {
       }
     };
 
-    fetchAssignmentData();
-  }, [assignmentId, courseId]);
+    if (user) {
+      fetchAssignmentData();
+    }
+  }, [assignmentId, courseId, user]);
 
   const handleCommandClick = (command) => {
     if (isAnimating) return;
@@ -240,7 +285,7 @@ const AssignmentPage = () => {
         for (let i = 0; i < command.iterations; i++) {
           for (const subCommand of command.commands) {
             nextX += subCommand.x_changes;
-            nextY -= subCommand.y_changes; // Используем y_changes напрямую
+            nextY -= subCommand.y_changes;
             if (subCommand.name.includes("вправо")) nextDirection = "right";
             else if (subCommand.name.includes("влево")) nextDirection = "left";
             else if (subCommand.name.includes("вверх")) nextDirection = "up";
@@ -426,16 +471,13 @@ const AssignmentPage = () => {
       answer: extractCommandIds(solution),
       assignment_id: assignmentId,
       user_login: user.user_login,
+      attempt_number: attemptNumber,
     };
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/create_solution/`,
-        solutionData,
-      );
-      const solutionId = response.data.solution_id;
-      console.log(solutionId);
+      await axios.post(`${API_BASE_URL}/create_solution/`, solutionData);
       setSolutionError("Решение успешно отправлено!");
+      setAttemptNumber(attemptNumber + 1);
     } catch (err) {
       console.error("Ошибка при отправке решения:", err);
       const message =
@@ -466,14 +508,45 @@ const AssignmentPage = () => {
     currentAssignmentIndex !== -1 &&
     currentAssignmentIndex < assignments.length - 1;
 
+  // Сообщение об оценке для дошкольников
+  const getGradeMessage = (grade) => {
+    switch (grade) {
+      case 5:
+        return "Молодец, ты отлично справился! 🥳";
+      case 4:
+        return "Хорошо постарался, почти идеально! 😊 Попробуй еще разок!";
+      case 3:
+        return "Ты на правильном пути! 😄 Давай попробуем улучшить!";
+      case 2:
+        return "Не переживай, у тебя получится! 😊 Давай попробуем снова!";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="assignment-page">
       <h2>{assignment.name}</h2>
       {solutionError && (
         <div
-          className={`solution-message ${solutionError.includes("Успех") || solutionError.includes("успешно отправлено") ? "success" : "error"}`}
+          className={`solution-message ${
+            solutionError.includes("Успех") ||
+            solutionError.includes("успешно отправлено")
+              ? "success"
+              : "error"
+          }`}
         >
           {solutionError}
+        </div>
+      )}
+      {feedback && (
+        <div className="solution-message feedback">
+          <strong>Комментарий учителя:</strong> {feedback}
+        </div>
+      )}
+      {grade !== null && (
+        <div className="solution-message grade">
+          <strong>Твоя оценка:</strong> {grade}. {getGradeMessage(grade)}
         </div>
       )}
       {isDeleting && <div className="loading">Удаление задания...</div>}
@@ -502,14 +575,6 @@ const AssignmentPage = () => {
         </button>
         {user && user.role_id === 2 && (
           <>
-            {/* <button
-              onClick={() => navigate(`/update-assignment/${assignmentId}`)}
-              className="edit-button"
-              title="Редактировать задание"
-              disabled={isDeleting || isAnimating}
-            >
-              <FontAwesomeIcon icon={faEdit} /> Редактировать
-            </button> */}
             <button
               onClick={handleDeleteCurrentAssignment}
               className="delete-button"

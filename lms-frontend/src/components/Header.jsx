@@ -33,12 +33,15 @@ const Header = () => {
             {user.role_id === 1 && (
               <>
                 <Link to="/courses">Мои курсы</Link>
+                <Link to="/grades">Мои оценки</Link>
               </>
             )}
             {user.role_id === 2 && (
               <>
                 <Link to="/courses">Список курсов</Link>
                 <Link to="/solutions-for-check">Проверить решения</Link>
+                <Link to="/grades">Оценки</Link>
+                <Link to="/users">Пользователи</Link>
                 <a onClick={handleAddUserClick}>Добавить пользователя</a>
               </>
             )}

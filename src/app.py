@@ -1,20 +1,23 @@
 from fastapi import FastAPI
-from views.user_view import router as user_router
-from views.course_view import router as course_router
-from views.assignment_view import router as assignment_router
-from views.solution_view import router as solution_router
-from views.grade_journal_view import router as grade_journal_router
+from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
 
-from fastapi.middleware.cors import CORSMiddleware
+from views.assignment_view import router as assignment_router
+from views.course_view import router as course_router
+from views.grade_journal_view import router as grade_journal_router
+from views.grade_routes import router as grade_main_router
+from views.solution_view import router as solution_router
+from views.user_routes import router as user_routes_router
+from views.user_view import router as user_router
 
 app = FastAPI()
 app.include_router(user_router)
+app.include_router(user_routes_router)
 app.include_router(course_router)
 app.include_router(assignment_router)
 app.include_router(solution_router)
 app.include_router(grade_journal_router)
-
+app.include_router(grade_main_router)
 
 origins = [
     "http://localhost:5173",

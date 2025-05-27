@@ -17,6 +17,8 @@ import AssignmentPage from "./components/AssignmentPage.jsx";
 import CreateAssignmentPage from "./components/CreateAssignmentPage.jsx";
 import SolutionCheckList from "./components/SolutionCheckList.jsx";
 import SolutionReviewPage from "./components/SolutionReviewPage.jsx";
+import GradesPage from "./components/GradesPage.jsx";
+import UsersPage from "./components/UserPage.jsx";
 
 function App() {
   return (
@@ -98,6 +100,8 @@ function AppContent() {
             )
           }
         />
+        <Route path="/grades" element={<GradesPage />} />
+        <Route path="/users" element={<UsersPage />} />
       </Routes>
     </>
   );
