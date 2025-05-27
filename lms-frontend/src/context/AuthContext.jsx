@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
                     const userLogin = subString.substring(2, subString.length - 5);
 
                     // Fetch user data using the login
-                    const response = await axios.get(`http://127.0.0.1/api/user/${userLogin}/`);
+                    const response = await axios.get(`http://backend-cnt/api/user/${userLogin}/`);
 
                     setUser(response.data);
                     setIsLoading(false);
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (loginData) => {
         try {
-            const response = await axios.post('http://127.0.0.1/api/login/', loginData);
+            const response = await axios.post('http://backend-cnt/api/login/', loginData);
             Cookies.set('AccessToken', response.data.access_token);
 
             // Decode the token to get the user_login
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
             const userLogin = subString.substring(2, subString.length - 5);
 
             // Fetch user data using the login
-            const userDataResponse = await axios.get(`http://127.0.0.1/api/user/${userLogin}/`);
+            const userDataResponse = await axios.get(`http://backend-cnt/api/user/${userLogin}/`);
             setUser(userDataResponse.data);
 
             return true; // signal success

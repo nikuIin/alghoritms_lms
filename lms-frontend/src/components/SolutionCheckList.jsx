@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SolutionCheckList.css"; // Создадим файл со стилями
 
-const API_BASE_URL = "http://127.0.0.1/api";
+const API_BASE_URL = "http://backend-cnt/api";
 const SOLUTIONS_URL = `${API_BASE_URL}/solution_for_review/`;
 const ASSIGNMENT_NAME_URL = (id) =>
   `${API_BASE_URL}/assignment_name/?assignment_id=${id}`;

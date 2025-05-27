@@ -27,7 +27,7 @@ const CreateCoursePage = () => {
         description: description,
       };
 
-      await axios.post("http://127.0.0.1/api/courses/", newCourse);
+      await axios.post("http://backend-cnt/api/courses/", newCourse);
 
       setLoading(false);
       navigate("/courses"); // Redirect back to the courses page after success

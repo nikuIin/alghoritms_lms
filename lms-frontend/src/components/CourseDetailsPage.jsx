@@ -8,7 +8,7 @@ import AddUsersToCoursePopup from "./AddUsersToCoursePopup";
 import AssignmentCard from "./AssignmentCard";
 import "./CourseDetailsPage.css";
 
-const API_BASE_URL = "http://127.0.0.1/api";
+const API_BASE_URL = "http://backend-cnt/api";
 
 const CourseDetailsPage = () => {
   const { courseId } = useParams();

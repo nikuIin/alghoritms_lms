@@ -33,7 +33,7 @@ const CreateAssignmentPage = () => {
     useEffect(() => {
         const fetchAvailableActions = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1/api/all_actions');
+                const response = await axios.get('http://backend-cnt/api/all_actions');
                 const actions = response.data;
                 setAvailableActions(actions);
                 setLoading(false);
@@ -155,7 +155,7 @@ const CreateAssignmentPage = () => {
                 description: description,
                 complexity: complexityLevel, // Include the complexity level
             };
-            const response = await axios.post('http://127.0.0.1/api/assignment/', newAssignment);
+            const response = await axios.post('http://backend-cnt/api/assignment/', newAssignment);
             if (response.status === 200) {
                 const assignmentId = response.data;
 
@@ -164,7 +164,7 @@ const CreateAssignmentPage = () => {
                     assignment_uuid: assignmentId
                 };
                 console.log(actionsData);
-                await axios.post('http://127.0.0.1/api/add_actions/', actionsData);
+                await axios.post('http://backend-cnt/api/add_actions/', actionsData);
 
                 const wallsData = [];
                 mapData.forEach((row, rowIndex) => {
@@ -181,7 +181,7 @@ const CreateAssignmentPage = () => {
                     });
                 });
 
-                await axios.post('http://127.0.0.1/api/add_elements/', wallsData);
+                await axios.post('http://backend-cnt/api/add_elements/', wallsData);
             }
 
             setLoading(false);
